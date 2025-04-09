@@ -22,6 +22,10 @@ class MainWindow(tk.Tk):
         self.resizable(False, False)
         self.title("Tasker")
         self.focus()
+        self.iconbitmap("favicon.ico")
+
+        font = ("Segoe UI", 10, "bold")
+
         self.hide_main_button = ttk.Button(self, text="Hide Main Window", command=self.hide_main_window)
         self.hide_main_button.pack(pady=10)
 
