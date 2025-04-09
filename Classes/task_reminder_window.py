@@ -11,19 +11,27 @@ import time
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
+import winsound
+
 
 class TasksReminderWindow(tk.Toplevel): 
 
-    def __init__(self, *args, callback=None, **kwargs):
+    def __init__(self, task_id, task_name, task_due_date, *args, callback=None, **kwargs):
         super().__init__(*args, **kwargs)
+
+        sound_thread = threading.Thread(target=self.play_sound)
+        sound_thread.start()
 
         self.callback = callback
         self.geometry("500x320")
         self.title("Tasker - Reminder")
         self.resizable(False, False)
-        self.iconbitmap("favicon.ico")
+        self.iconbitmap("Assets\\favicon.ico")
+        self.overrideredirect(True)
 
         font = ("Segoe UI", 10, "bold")
+
+        self.task_id = task_id
 
         self.center_window()
 
@@ -42,7 +50,7 @@ class TasksReminderWindow(tk.Toplevel):
         tk.Label(self, text="Task:", font=font).grid(row=0, column=1, pady=(10, 0), sticky="n", padx=10)
 
         self.selectable_label = tk.Text(self, height=1, width=50, wrap=tk.WORD, font=("Segoe UI", 12, "bold"), bd=0)
-        self.selectable_label.insert(tk.END, "This is a selectable label!")
+        self.selectable_label.insert(tk.END, f"{task_name} | Due: {task_due_date}")
         self.selectable_label.config(state=tk.DISABLED)
         self.selectable_label.grid(row=1, column=0, pady=10, padx=10, sticky="nsew", columnspan=3)
 
@@ -84,7 +92,7 @@ class TasksReminderWindow(tk.Toplevel):
         self.new_date_btn = ttk.Button(self, text="New Date")
         self.new_date_btn.grid(row=6, column=0, pady=10, padx=10, sticky="ew")
 
-        self.submit_btn = ttk.Button(self, text="Snooze 1h")
+        self.submit_btn = ttk.Button(self, text="Snooze 1h", command=self.snooze_task_hour)
         self.submit_btn.grid(row=6, column=1, pady=10, padx=10, sticky="ew")
         
         self.complete_btn = ttk.Button(self, text="Complete")
@@ -98,3 +106,45 @@ class TasksReminderWindow(tk.Toplevel):
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+    def play_sound(self):
+        winsound.PlaySound('E:\\My Projects\\Tasker\\Assets\\notification_sound.wav', winsound.SND_FILENAME)
+    
+    def hide_reminder_window(self):
+        self.withdraw()
+
+    def get_task_and_time(self):
+        task = self.task_id
+        selected_date = self.date_entry.get_date()
+        selected_hour = self.hour_var.get()
+        selected_minute = self.minute_var.get()
+        selected_time = f"{selected_hour}:{selected_minute}"
+        full_datetime = f"{selected_date} {selected_time}"
+        return task, full_datetime
+    
+    def update_task_status(task_id, status):
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
+        c.execute("UPDATE tasks SET status = ? WHERE id = ?", (status, task_id))
+        conn.commit()
+        conn.close()
+
+# TODO: Add the snooze with new date functionality
+# TODO: Add the Complete task functionality
+
+    def snooze_task_hour(self):
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
+
+        c.execute("SELECT due_date FROM tasks WHERE id = ?", (self.task_id,))
+        due_date_str = c.fetchone()[0]
+
+        due_date = datetime.strptime(due_date_str, "%Y-%m-%d %H:%M")
+        new_due_date = due_date + timedelta(hours=1)
+
+        c.execute(
+            "UPDATE tasks SET due_date = ?, notified = 0 WHERE id = ?",
+            (new_due_date.strftime("%Y-%m-%d %H:%M"), self.task_id),
+        )
+        conn.commit()
+        self.hide_reminder_window()

@@ -11,9 +11,9 @@ import time
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
-from main_window import MainWindow
-from task_window import TasksWindow
-from task_reminder_window import TasksReminderWindow
+from Classes.main_window import MainWindow
+from Classes.task_window import TasksWindow
+from Classes.task_reminder_window import TasksReminderWindow
 
 task_window_instance = None
 
@@ -66,8 +66,8 @@ def show_task_window():
         print("Error showing task window:", e)
         task_window_instance = None
 
-def show_reminder_window():
-    task_window = TasksReminderWindow()
+def show_reminder_window(task_id, task_name, task_due_date):
+    task_window = TasksReminderWindow(task_id, task_name, task_due_date)
     task_window.deiconify()
     task_window.lift()
     task_window.focus_force() 
@@ -79,6 +79,33 @@ def show_main_window():
     main_window.lift()
     main_window.focus_force()
     
+
+def check_for_due_tasks():
+    while True:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
+        c.execute(
+            """
+            SELECT id, name, due_date FROM tasks
+            WHERE due_date IS NOT NULL AND status = 'open' AND notified = 0 AND due_date <= ?
+            ORDER BY due_date ASC
+        """,
+            (now,),
+        )
+        due_tasks = c.fetchall()
+
+        for task in due_tasks:
+            task_id, name, due_date = task
+            show_reminder_window(task_id, name, due_date)
+            # Mark as notified so it doesn't remind again
+            c.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
+
+        conn.commit()
+        conn.close()
+        time.sleep(10)
+
+
 
 def hotkey_listener():
     keyboard.add_hotkey("shift+space", show_task_window)
@@ -92,7 +119,7 @@ def hotkey_listener_reminder():
 init_db()
 
 threading.Thread(target=hotkey_listener, daemon=True).start()
-threading.Thread(target=hotkey_listener_reminder, daemon=True).start()
+threading.Thread(target=check_for_due_tasks, daemon=True).start()
 threading.Thread(target=setup_tray, daemon=True).start()
 
 main_window = MainWindow()

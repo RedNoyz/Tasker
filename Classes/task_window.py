@@ -21,7 +21,7 @@ class TasksWindow(tk.Toplevel):
         self.geometry("500x320")
         self.title("Tasker - Add Task")
         self.resizable(False, False)
-        self.iconbitmap("favicon.ico")
+        self.iconbitmap("Assets\\favicon.ico")
 
         font = ("Segoe UI", 10, "bold")
 
@@ -84,7 +84,6 @@ class TasksWindow(tk.Toplevel):
         dismiss_btn = ttk.Button(self, text="Cancel", command=self.hide_task_window)
         dismiss_btn.grid(row=7, column=0, pady=10, padx=10)
 
-
     def get_task_and_time(self):
         task = self.entry.get()
         selected_date = self.date_entry.get_date() 
@@ -123,6 +122,7 @@ class TasksWindow(tk.Toplevel):
         conn.commit()
         conn.close()
         print("task logged")
+        self.hide_task_window()
 
     def check_entry(self, event=None):
         if self.entry.get().strip():

@@ -22,12 +22,27 @@ class MainWindow(tk.Tk):
         self.resizable(False, False)
         self.title("Tasker")
         self.focus()
-        self.iconbitmap("favicon.ico")
+        self.iconbitmap("Assets\\favicon.ico")
 
         font = ("Segoe UI", 10, "bold")
 
+        self.grid_columnconfigure(0, weight=1, minsize=166)
+        self.grid_columnconfigure(1, weight=1, minsize=166)
+        self.grid_columnconfigure(2, weight=1, minsize=166)
+
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_rowconfigure(2, weight=0)
+        self.grid_rowconfigure(3, weight=0)
+        self.grid_rowconfigure(4, weight=0)
+        self.grid_rowconfigure(5, weight=0)
+        self.grid_rowconfigure(6, weight=0)
+
         self.hide_main_button = ttk.Button(self, text="Hide Main Window", command=self.hide_main_window)
-        self.hide_main_button.grid(row=1, column=0, pady=10, padx=10)
+        self.hide_main_button.grid(row=0, column=1, pady=10, padx=10)
+
+        tk.Label(self, text="Made by RedNoyz", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
+
 
     def hide_main_window(self):
         self.withdraw()
