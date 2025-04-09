@@ -27,7 +27,7 @@ class MainWindow(tk.Tk):
         font = ("Segoe UI", 10, "bold")
 
         self.hide_main_button = ttk.Button(self, text="Hide Main Window", command=self.hide_main_window)
-        self.hide_main_button.pack(pady=10)
+        self.hide_main_button.grid(row=1, column=0, pady=10, padx=10)
 
     def hide_main_window(self):
         self.withdraw()

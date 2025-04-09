@@ -18,7 +18,7 @@ class TasksWindow(tk.Toplevel):
         super().__init__(*args, **kwargs)
 
         self.callback = callback
-        self.geometry("500x220")
+        self.geometry("500x320")
         self.title("Tasker - Add Task")
         self.resizable(False, False)
         self.iconbitmap("favicon.ico")
@@ -27,18 +27,29 @@ class TasksWindow(tk.Toplevel):
 
         self.center_window()
 
-        tk.Label(self, text="New Task:", font=font).pack(pady=(10, 0))
-        self.entry = tk.Entry(self, width=50)
-        self.entry.pack(pady=5)
-        tk.Label(self, text="Select Date:", font=font).pack()
+        self.grid_columnconfigure(0, weight=1)  # Centering the widgets horizontally
+        self.grid_rowconfigure(0, weight=0)  # Label row
+        self.grid_rowconfigure(1, weight=0)  # Entry row
+        self.grid_rowconfigure(2, weight=0)  # Date label row
+        self.grid_rowconfigure(3, weight=0)  # Date entry row
+        self.grid_rowconfigure(4, weight=0)  # Time label row
+        self.grid_rowconfigure(5, weight=0)  # Time entry row
+        self.grid_rowconfigure(6, weight=0)  # Submit button row
+        self.grid_rowconfigure(7, weight=0)  # Cancel button row
+
+        tk.Label(self, text="New Task:", font=font).grid(row=0, column=0, pady=(10, 0), sticky="n", padx=10)
+        self.entry = tk.Entry(self, width=50, font=("Segoe UI", 12))
+        self.entry.grid(row=1, column=0, pady=10, padx=10)
+
+        tk.Label(self, text="Select Date:", font=font).grid(row=2, column=0, pady=5, sticky="n", padx=10)
         self.date_entry = DateEntry(
             self, width=12, background="darkblue", foreground="white", borderwidth=2, year=2025
-)
-        self.date_entry.pack(pady=5)
+        )
+        self.date_entry.grid(row=3, column=0, pady=10, padx=10)
 
-        tk.Label(self, text="Select Time:", font=font).pack()
+        tk.Label(self, text="Select Time:", font=font).grid(row=4, column=0, pady=5, sticky="n", padx=10)
         self.time_frame = tk.Frame(self)
-        self.time_frame.pack(pady=5)
+        self.time_frame.grid(row=5, column=0, pady=10, padx=10)
 
         self.hour_var = tk.StringVar(value="12")
         self.minute_var = tk.StringVar(value="00")
@@ -62,19 +73,18 @@ class TasksWindow(tk.Toplevel):
             format="%02.0f",
         )
 
-        self.hour_spin.pack(side=tk.LEFT, padx=(0, 5))
-        self.minute_spin.pack(side=tk.LEFT)
+        self.hour_spin.grid(row=0, column=0, padx=(0, 5))
+        self.minute_spin.grid(row=0, column=1)
 
         self.submit_btn = ttk.Button(self, text="Log Task", command=self.print_task)
-        self.submit_btn.pack(pady=10)
-        self.submit_btn.config(state="disabled")  # Start as disabled
+        self.submit_btn.grid(row=6, column=0, pady=10, padx=10)
+        self.submit_btn.config(state="disabled")
         self.entry.bind("<KeyRelease>", self.check_entry)
-        
-        
-        
+
         dismiss_btn = ttk.Button(self, text="Cancel", command=self.hide_task_window)
-        dismiss_btn.pack(pady=10)
-        
+        dismiss_btn.grid(row=7, column=0, pady=10, padx=10)
+
+
     def get_task_and_time(self):
         task = self.entry.get()
         selected_date = self.date_entry.get_date() 
@@ -98,7 +108,7 @@ class TasksWindow(tk.Toplevel):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         window_width = 500
-        window_height = 220
+        window_height = 320
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
