@@ -11,6 +11,8 @@ import time
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
+from main_window import MainWindow
+from task_window import TasksWindow
 
 def init_db():
     conn = sqlite3.connect("tasks.db")
@@ -63,48 +65,6 @@ def hotkey_listener():
     keyboard.add_hotkey("shift+space", show_task_window)
     keyboard.wait()
 
-
-class TasksWindow(tk.Toplevel): 
-
-    def __init__(self, *args, callback=None, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.callback = callback
-        self.geometry("500x220")
-        self.title("Tasker - Add Task")
-        self.resizable(False, False)
-        tk.Label(self, text="New Task:").pack(pady=(10, 0))
-        self.entry = tk.Entry(self, width=50)
-        self.entry.pack(pady=5)
-        self.center_window()
-
-    def center_window(self):
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        window_width = 500
-        window_height = 220
-        x = (screen_width // 2) - (window_width // 2)
-        y = (screen_height // 2) - (window_height // 2)
-        self.geometry(f"{window_width}x{window_height}+{x}+{y}")
-
-    def hide_task_window(self):
-        self.withdraw()
-
-class MainWindow(tk.Tk): 
-
-    def __init__(self, *args, callback=None, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.callback = callback
-        self.geometry("500x500")
-        self.resizable(False, False)
-        self.title("Tasker")
-        self.focus()
-        self.hide_main_button = ttk.Button(self, text="Hide Main Window", command=self.hide_main_window)
-        self.hide_main_button.pack(pady=10)
-
-    def hide_main_window(self):
-        self.withdraw()
 
 init_db()
 
