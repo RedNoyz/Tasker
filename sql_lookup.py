@@ -6,6 +6,8 @@ c = conn.cursor()
 
 # Run the ALTER TABLE command to add the 'notified' column
 c.execute("SELECT * FROM tasks ORDER BY due_date ASC")
+# c.execute("SELECT * FROM settings")
+# c.execute("DROP TABLE IF EXISTS tasks")
 
 return_tasks = c.fetchall()
 # Commit the changes

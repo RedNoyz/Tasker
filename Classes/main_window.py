@@ -41,7 +41,7 @@ class MainWindow(tk.Tk):
         self.hide_main_button = ttk.Button(self, text="Hide Main Window", command=self.hide_main_window)
         self.hide_main_button.grid(row=0, column=1, pady=10, padx=10)
 
-        tk.Label(self, text="Made by RedNoyz", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
+        # tk.Label(self, text="Made by RedNoyz", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
 
 
     def hide_main_window(self):

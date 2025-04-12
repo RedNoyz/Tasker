@@ -11,6 +11,7 @@ import time
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
+import winsound
 
 class TasksWindow(tk.Toplevel): 
 
@@ -24,6 +25,10 @@ class TasksWindow(tk.Toplevel):
         self.iconbitmap("Assets\\favicon.ico")
 
         font = ("Segoe UI", 10, "bold")
+
+        # Test Sounds
+        # sound_thread = threading.Thread(target=self.play_sound)
+        # sound_thread.start()
 
         self.center_window()
 
@@ -92,6 +97,10 @@ class TasksWindow(tk.Toplevel):
         selected_time = f"{selected_hour}:{selected_minute}"
         full_datetime = f"{selected_date} {selected_time}"
         return task, full_datetime
+
+    # Test Sounds  
+    # def play_sound(self):
+    #     winsound.PlaySound('E:\\My Projects\\Tasker\\Assets\\notification_sound.wav', winsound.SND_FILENAME)
             
     def print_task(self):
         task_description, due_date = self.get_task_and_time()

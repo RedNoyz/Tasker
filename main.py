@@ -32,6 +32,15 @@ def init_db():
         )
     """ 
     )
+
+    c.execute(
+        """
+            CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            name TEXT
+        )
+    """ 
+    )
     conn.commit()
     conn.close()
 

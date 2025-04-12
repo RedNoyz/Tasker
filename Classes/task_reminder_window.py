@@ -136,11 +136,9 @@ class TasksReminderWindow(tk.Toplevel):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
 
-        c.execute("SELECT due_date FROM tasks WHERE id = ?", (self.task_id,))
-        due_date_str = c.fetchone()[0]
+        now_date = datetime.now()
 
-        due_date = datetime.strptime(due_date_str, "%Y-%m-%d %H:%M")
-        new_due_date = due_date + timedelta(hours=1)
+        new_due_date = now_date + timedelta(hours=1)
 
         c.execute(
             "UPDATE tasks SET due_date = ?, notified = 0 WHERE id = ?",
