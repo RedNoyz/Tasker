@@ -19,7 +19,7 @@ class TasksWindow(tk.Toplevel):
         super().__init__(*args, **kwargs)
 
         self.callback = callback
-        self.geometry("500x320")
+        self.geometry("700x400")
         self.title("Tasker - Add Task")
         self.resizable(False, False)
         self.iconbitmap("Assets\\favicon.ico")
@@ -56,8 +56,15 @@ class TasksWindow(tk.Toplevel):
         self.time_frame = tk.Frame(self)
         self.time_frame.grid(row=5, column=0, pady=10, padx=10)
 
-        self.hour_var = tk.StringVar(value="12")
-        self.minute_var = tk.StringVar(value="00")
+        now = datetime.now()
+        current_hour = now.hour
+        current_minute = now.minute
+
+        self.hour_var = tk.StringVar(value=self.format_time_input(str(current_hour)))
+        self.minute_var = tk.StringVar(value=self.format_time_input(str(current_minute)))
+
+        self.vcmd_hour = (self.register(self.on_validate_hour_input), "%P")
+        self.vcmd_minute = (self.register(self.on_validate_minute_input), "%P")
 
         self.hour_spin = ttk.Spinbox(
             self.time_frame,
@@ -67,6 +74,9 @@ class TasksWindow(tk.Toplevel):
             textvariable=self.hour_var,
             width=5,
             format="%02.0f",
+            validate="key",
+            validatecommand=self.vcmd_hour,
+            command=self.format_hour_input
         )
         self.minute_spin = ttk.Spinbox(
             self.time_frame,
@@ -76,10 +86,16 @@ class TasksWindow(tk.Toplevel):
             textvariable=self.minute_var,
             width=5,
             format="%02.0f",
+            validate="key",
+            validatecommand=self.vcmd_minute,
+            command=self.format_minute_input
         )
 
         self.hour_spin.grid(row=0, column=0, padx=(0, 5))
         self.minute_spin.grid(row=0, column=1)
+
+        self.hour_spin.bind("<FocusOut>", self.format_hour_input)
+        self.minute_spin.bind("<FocusOut>", self.format_minute_input)
 
         self.submit_btn = ttk.Button(self, text="Log Task", command=self.print_task)
         self.submit_btn.grid(row=6, column=0, pady=10, padx=10)
@@ -97,6 +113,26 @@ class TasksWindow(tk.Toplevel):
         selected_time = f"{selected_hour}:{selected_minute}"
         full_datetime = f"{selected_date} {selected_time}"
         return task, full_datetime
+    
+    def validate_time_input(self, P, max_val):
+        if P == "" or (P.isdigit() and 0 <= int(P) <= max_val and len(P) <= 2):
+            return True
+        return False
+
+    def format_time_input(self, value):
+        return value.zfill(2)
+
+    def on_validate_hour_input(self, P):
+        return self.validate_time_input(P, 23)
+
+    def on_validate_minute_input(self, P):
+        return self.validate_time_input(P, 59)
+
+    def format_hour_input(self, event=None):
+        self.hour_var.set(self.format_time_input(self.hour_var.get()))
+
+    def format_minute_input(self, event=None):
+        self.minute_var.set(self.format_time_input(self.minute_var.get()))
 
     # Test Sounds  
     # def play_sound(self):
@@ -115,8 +151,8 @@ class TasksWindow(tk.Toplevel):
     def center_window(self):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        window_width = 500
-        window_height = 320
+        window_width = 700
+        window_height = 400
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")

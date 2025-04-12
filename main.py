@@ -11,6 +11,8 @@ import time
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
+import sv_ttk
+
 from Classes.main_window import MainWindow
 from Classes.task_window import TasksWindow
 from Classes.task_reminder_window import TasksReminderWindow
@@ -131,5 +133,8 @@ threading.Thread(target=hotkey_listener, daemon=True).start()
 threading.Thread(target=check_for_due_tasks, daemon=True).start()
 threading.Thread(target=setup_tray, daemon=True).start()
 
+
+
 main_window = MainWindow()
+sv_ttk.set_theme("dark")
 main_window.mainloop()
