@@ -120,7 +120,7 @@ def check_for_due_tasks():
 
 
 def hotkey_listener():
-    keyboard.add_hotkey("shift+space", show_task_window)
+    keyboard.add_hotkey("ctrl+shift+space", show_task_window)
     keyboard.wait()
 
 def hotkey_listener_reminder():
