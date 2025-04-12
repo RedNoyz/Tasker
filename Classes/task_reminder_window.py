@@ -65,7 +65,7 @@ class TasksReminderWindow(tk.Toplevel):
         self.time_frame.grid(row=5, column=1, pady=10, padx=10)
 
         now = datetime.now()
-        current_hour = now.hour
+        current_hour = (now + timedelta(hours=1)).hour
         current_minute = now.minute
 
         self.hour_var = tk.StringVar(value=self.format_time_input(str(current_hour)))
