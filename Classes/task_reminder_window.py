@@ -172,13 +172,23 @@ class TasksReminderWindow(tk.Toplevel):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
 
+        c.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
+        row = c.fetchone()
+        snooze_counter = (row[0] if row and row[0] is not None else 0) + 1
+
         now_date = datetime.now()
 
         new_due_date = now_date + timedelta(hours=1)
 
+        formatted_due_date = new_due_date.strftime("%Y-%m-%d %H:%M")
+
         c.execute(
-            "UPDATE tasks SET due_date = ?, notified = 0 WHERE id = ?",
-            (new_due_date.strftime("%Y-%m-%d %H:%M"), self.task_id),
+            "UPDATE tasks SET due_date = ?, notified = 0, snooze_counter = ? WHERE id = ?",
+            (formatted_due_date, snooze_counter, self.task_id),
         )
         conn.commit()
+        conn.close()
+
+        messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times")
+
         self.hide_reminder_window()

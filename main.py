@@ -30,7 +30,8 @@ def init_db():
             due_date TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             notified INTEGER DEFAULT 0,
-            status TEXT DEFAULT 'open'
+            status TEXT DEFAULT 'open',
+            snooze_counter INTEGER DEFAULT 0
         )
     """ 
     )

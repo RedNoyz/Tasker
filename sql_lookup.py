@@ -8,6 +8,7 @@ c = conn.cursor()
 c.execute("SELECT * FROM tasks ORDER BY due_date ASC")
 # c.execute("SELECT * FROM settings")
 # c.execute("DROP TABLE IF EXISTS tasks")
+# c.execute("ALTER TABLE tasks ADD COLUMN snooze_counter INTEGER DEFAULT 0;")
 
 return_tasks = c.fetchall()
 # Commit the changes
