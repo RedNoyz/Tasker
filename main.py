@@ -13,9 +13,9 @@ from PIL import Image, ImageDraw
 import sys
 import sv_ttk
 
-from Classes.main_window import MainWindow
-from Classes.task_window import TasksWindow
-from Classes.task_reminder_window import TasksReminderWindow
+from src.main_window import MainWindow
+from src.task_window import TasksWindow
+from src.task_reminder_window import TasksReminderWindow
 
 task_window_instance = None
 
