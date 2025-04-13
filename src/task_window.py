@@ -23,6 +23,10 @@ class TasksWindow(tk.Toplevel):
         self.title("Tasker - Add Task")
         self.resizable(False, False)
         self.iconbitmap("Assets\\favicon.ico")
+        self.transient(None)
+        self.attributes("-topmost", False)
+        self.focus_force()
+
 
         font = ("Segoe UI", 10, "bold")
 

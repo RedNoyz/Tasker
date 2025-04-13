@@ -27,7 +27,10 @@ class TasksReminderWindow(tk.Toplevel):
         self.title("Tasker - Reminder")
         self.resizable(False, False)
         self.iconbitmap("Assets\\favicon.ico")
-        self.overrideredirect(True)
+        self.transient(None)
+        self.attributes("-topmost", False)
+        self.focus_force()
+        self.protocol("WM_DELETE_WINDOW", self.snooze_task_hour)
 
         font = ("Segoe UI", 10, "bold")
 
