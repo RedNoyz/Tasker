@@ -12,6 +12,10 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 
+from src.task_window import TasksWindow
+
+task_window_instance = None
+
 class MainWindow(tk.Tk): 
 
     def __init__(self, *args, callback=None, **kwargs):
@@ -41,8 +45,26 @@ class MainWindow(tk.Tk):
         self.hide_main_button = ttk.Button(self, text="Hide Main Window", command=self.hide_main_window)
         self.hide_main_button.grid(row=0, column=1, pady=10, padx=10)
 
+        self.new_task = ttk.Button(self, text="New Task", command=self.show_task_window)
+        self.new_task.grid(row=1, column=1, pady=10, padx=10)
+
         # tk.Label(self, text="Made by RedNoyz", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
 
 
     def hide_main_window(self):
         self.withdraw()
+
+    def show_task_window(self):
+        global task_window_instance
+        try:
+            if task_window_instance is None or not task_window_instance.winfo_exists():
+                task_window_instance = TasksWindow()
+            else:
+                task_window_instance.deiconify()
+                task_window_instance.lift()
+                task_window_instance.focus_force()
+                task_window_instance.attributes('-topmost', True)
+                task_window_instance.after(100, lambda: task_window_instance.attributes('-topmost', False))
+        except Exception as e:
+            print("Error showing task window:", e)
+            task_window_instance = None

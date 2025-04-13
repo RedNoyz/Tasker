@@ -105,13 +105,13 @@ class TasksReminderWindow(tk.Toplevel):
         self.hour_spin.bind("<FocusOut>", self.format_hour_input)
         self.minute_spin.bind("<FocusOut>", self.format_minute_input)
 
-        self.new_date_btn = ttk.Button(self, text="New Date")
+        self.new_date_btn = ttk.Button(self, text="New Date", command=self.snooze_task_new_date)
         self.new_date_btn.grid(row=6, column=0, pady=10, padx=10, sticky="ew")
 
         self.submit_btn = ttk.Button(self, text="Snooze 1h", command=self.snooze_task_hour)
         self.submit_btn.grid(row=6, column=1, pady=10, padx=10, sticky="ew")
         
-        self.complete_btn = ttk.Button(self, text="Complete")
+        self.complete_btn = ttk.Button(self, text="Complete", command=self.complete_task)
         self.complete_btn.grid(row=6, column=2, pady=10, padx=10, sticky="ew")
 
     def center_window(self):
@@ -130,13 +130,12 @@ class TasksReminderWindow(tk.Toplevel):
         self.withdraw()
 
     def get_task_and_time(self):
-        task = self.task_id
         selected_date = self.date_entry.get_date()
         selected_hour = self.hour_var.get()
         selected_minute = self.minute_var.get()
         selected_time = f"{selected_hour}:{selected_minute}"
         full_datetime = f"{selected_date} {selected_time}"
-        return task, full_datetime
+        return full_datetime
     
     def validate_time_input(self, P, max_val):
         if P == "" or (P.isdigit() and 0 <= int(P) <= max_val and len(P) <= 2):
@@ -165,9 +164,6 @@ class TasksReminderWindow(tk.Toplevel):
         conn.commit()
         conn.close()
 
-# TODO: Add the snooze with new date functionality
-# TODO: Add the Complete task functionality
-
     def snooze_task_hour(self):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
@@ -190,5 +186,47 @@ class TasksReminderWindow(tk.Toplevel):
         conn.close()
 
         messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times")
+
+        self.hide_reminder_window()
+
+    def snooze_task_new_date(self):
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
+
+        c.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
+        row = c.fetchone()
+        snooze_counter = (row[0] if row and row[0] is not None else 0) + 1
+
+        formatted_due_date = self.get_task_and_time()
+        
+
+        c.execute(
+            "UPDATE tasks SET due_date = ?, notified = 0, snooze_counter = ? WHERE id = ?",
+            (formatted_due_date, snooze_counter, self.task_id),
+        )
+        conn.commit()
+        conn.close()
+
+        messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times")
+
+        self.hide_reminder_window()
+
+    def complete_task(self):
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
+
+        completed_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        c.execute(
+            "UPDATE tasks SET status = 'complete', complete_date = ? WHERE id = ?",
+            (completed_date, self.task_id)
+        )
+        print("Rows affected:", c.rowcount)
+        conn.commit()
+        conn.close()
+
+        print(completed_date)
+
+        messagebox.showinfo("Completed", f"Task completed on: {completed_date}")
 
         self.hide_reminder_window()

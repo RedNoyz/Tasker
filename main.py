@@ -28,9 +28,10 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             due_date TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
             notified INTEGER DEFAULT 0,
             status TEXT DEFAULT 'open',
+            complete_date TIMESTAMP,
             snooze_counter INTEGER DEFAULT 0
         )
     """ 

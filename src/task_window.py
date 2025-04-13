@@ -167,6 +167,9 @@ class TasksWindow(tk.Toplevel):
         conn.commit()
         conn.close()
         print("task logged")
+
+        messagebox.showinfo("New Task", f"Task added due: {due_date}")
+
         self.hide_task_window()
 
     def check_entry(self, event=None):
