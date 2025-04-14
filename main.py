@@ -16,6 +16,7 @@ import sv_ttk
 from src.main_window import MainWindow
 from src.task_window import TasksWindow
 from src.task_reminder_window import TasksReminderWindow
+from src.task_list_window import TasksListWindow
 
 task_window_instance = None
 

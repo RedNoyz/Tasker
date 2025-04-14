@@ -13,6 +13,7 @@ from PIL import Image, ImageDraw
 import sys
 
 from src.task_window import TasksWindow
+from src.task_list_window import TasksListWindow
 
 task_window_instance = None
 
@@ -48,6 +49,9 @@ class MainWindow(tk.Tk):
         self.new_task = ttk.Button(self, text="New Task", command=self.show_task_window)
         self.new_task.grid(row=1, column=1, pady=10, padx=10)
 
+        self.new_task = ttk.Button(self, text="Show Task List", command=self.show_task_list_window)
+        self.new_task.grid(row=2, column=1, pady=10, padx=10)
+
         # tk.Label(self, text="Made by RedNoyz", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
 
 
@@ -68,3 +72,6 @@ class MainWindow(tk.Tk):
         except Exception as e:
             print("Error showing task window:", e)
             task_window_instance = None
+
+    def show_task_list_window(self):
+        task_list_window = TasksListWindow()
