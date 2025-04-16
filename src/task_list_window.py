@@ -23,9 +23,29 @@ class TasksListWindow(tk.Toplevel):
         self.geometry("1000x700")
         self.title("Tasker - Reminder")
         self.resizable(False, False)
-        self.iconbitmap("Assets\\favicon.ico")
         self.transient(None)
         font = ("Segoe UI", 10, "bold")
+
+        def get_asset_path(relative_path):
+            """ Get path to resource, works for dev and for PyInstaller """
+            if hasattr(sys, '_MEIPASS'):
+                # PyInstaller creates a temp folder and stores path in _MEIPASS
+                return os.path.join(sys._MEIPASS, relative_path)
+            return os.path.join(os.path.abspath("."), relative_path)
+
+        # Inside your window init:
+        self.iconbitmap(get_asset_path("Assets/favicon.ico"))
+
+        style = ttk.Style(self)
+
+        style.configure("Treeview",
+                        background="grey",
+                        foreground="black",
+                        fieldbackground="white")
+        
+        style.map("Treeview",
+                  background=[('selected', 'lightblue')],
+                  foreground=[('selected', 'black')])
 
         self.tree = ttk.Treeview(self, columns=("ID", "Title", "Status", "Due Date"), show="headings", selectmode="extended")
         self.tree.heading("ID", text="ID")
@@ -42,14 +62,22 @@ class TasksListWindow(tk.Toplevel):
         self.button_frame = tk.Frame(self)
         self.button_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=10)
 
-        self.mark_done_btn = tk.Button(self.button_frame, text="✅ Mark as Done", command=self.on_mark_done)
-        self.mark_done_btn.pack(pady=20)
+        self.mark_done_btn = tk.Button(self.button_frame, text="✅ Mark as Done", command=self.on_mark_done, bg="darkgreen")
+        self.mark_done_btn.pack(pady=10)
 
-        self.mark_done_btn = tk.Button(self.button_frame, text="❌ Delete Task", command=self.on_delete)
-        self.mark_done_btn.pack(pady=30)
+        self.mark_done_btn = tk.Button(self.button_frame, text="❌ Delete Task", command=self.on_delete, bg="darkred")
+        self.mark_done_btn.pack(pady=10)
 
-        self.refresh_list = tk.Button(self.button_frame, text="🔃 Refresh", command=self.refresh_tree)
-        self.refresh_list.pack(pady=40)
+        self.refresh_list_open = tk.Button(self.button_frame, text="🔃 Refresh Open Tasks", command=self.refresh_tree)
+        self.refresh_list_open.pack(pady=10)
+
+        self.refresh_list_closed= tk.Button(self.button_frame, text="🔃 Refresh Complete Tasks", command=self.refresh_closed_tasks)
+        self.refresh_list_closed.pack(pady=10)
+
+        self.refresh_list_all = tk.Button(self.button_frame, text="🔃 Refresh All Tasks", command=self.refresh_all_tasks)
+        self.refresh_list_all.pack(pady=10)
+
+        self.bind("<Control-a>", self.select_all)
 
         self.refresh_tree()
     
@@ -57,7 +85,7 @@ class TasksListWindow(tk.Toplevel):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
 
-        c.execute("SELECT id, name, status, due_date FROM tasks")
+        c.execute("SELECT id, name, status, due_date FROM tasks WHERE status = 'open' ORDER BY due_date ASC")
         tasks = c.fetchall()
 
         conn.close()
@@ -110,3 +138,40 @@ class TasksListWindow(tk.Toplevel):
             self.delete_task(task_id)
 
         self.refresh_tree()
+    
+    def refresh_all_tasks(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        for task in self.get_all_tasks_list():
+            self.tree.insert("", tk.END, values=task)
+
+    def get_all_tasks_list(self):
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
+
+        c.execute("SELECT id, name, status, due_date FROM tasks ORDER BY due_date ASC")
+        tasks = c.fetchall()
+
+        conn.close()
+        return tasks
+    
+    def refresh_closed_tasks(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        for task in self.get_closed_tasks_list():
+            self.tree.insert("", tk.END, values=task)
+
+    def get_closed_tasks_list(self):
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
+
+        c.execute("SELECT id, name, status, due_date FROM tasks WHERE status = 'complete' ORDER BY due_date ASC")
+        tasks = c.fetchall()
+
+        conn.close()
+        return tasks
+    
+    def select_all(self, event):
+        """Select all rows in the Treeview."""
+        for item in self.tree.get_children():
+            self.tree.selection_add(item)

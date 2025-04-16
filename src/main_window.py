@@ -27,7 +27,13 @@ class MainWindow(tk.Tk):
         self.resizable(False, False)
         self.title("Tasker")
         self.focus()
-        self.iconbitmap("Assets\\favicon.ico")
+
+        def get_asset_path(relative_path):
+            if hasattr(sys, '_MEIPASS'):
+                return os.path.join(sys._MEIPASS, relative_path)
+            return os.path.join(os.path.abspath("."), relative_path)
+
+        self.iconbitmap(get_asset_path("Assets/favicon.ico"))
 
         font = ("Segoe UI", 10, "bold")
 
@@ -75,3 +81,6 @@ class MainWindow(tk.Tk):
 
     def show_task_list_window(self):
         task_list_window = TasksListWindow()
+        task_list_window.deiconify()
+        task_list_window.lift()
+        task_list_window.focus_force()

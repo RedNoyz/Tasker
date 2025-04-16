@@ -22,10 +22,17 @@ class TasksWindow(tk.Toplevel):
         self.geometry("700x400")
         self.title("Tasker - Add Task")
         self.resizable(False, False)
-        self.iconbitmap("Assets\\favicon.ico")
         self.transient(None)
         self.attributes("-topmost", False)
         self.focus_force()
+
+        def get_asset_path(relative_path):
+            if hasattr(sys, '_MEIPASS'):
+                return os.path.join(sys._MEIPASS, relative_path)
+            return os.path.join(os.path.abspath("."), relative_path)
+        
+        print(get_asset_path("Assets/favicon.ico"))
+        self.iconbitmap(get_asset_path("Assets/favicon.ico"))
 
 
         font = ("Segoe UI", 10, "bold")
@@ -104,7 +111,10 @@ class TasksWindow(tk.Toplevel):
         self.submit_btn = ttk.Button(self, text="Log Task", command=self.print_task)
         self.submit_btn.grid(row=6, column=0, pady=10, padx=10)
         self.submit_btn.config(state="disabled")
+        self.bind("<Return>", self.on_enter)
         self.entry.bind("<KeyRelease>", self.check_entry)
+
+        self.bind("<Escape>", self.on_escape)
 
         dismiss_btn = ttk.Button(self, text="Cancel", command=self.hide_task_window)
         dismiss_btn.grid(row=7, column=0, pady=10, padx=10)
@@ -181,3 +191,9 @@ class TasksWindow(tk.Toplevel):
             self.submit_btn.config(state="normal")
         else:
             self.submit_btn.config(state="disabled")
+
+    def on_enter(self, event=None):
+        self.submit_btn.invoke()
+
+    def on_escape(self, event=None):
+        self.hide_task_window()
