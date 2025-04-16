@@ -12,6 +12,10 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 import sv_ttk
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.main_window import MainWindow
 from src.task_window import TasksWindow
@@ -128,7 +132,6 @@ def hotkey_listener():
 def hotkey_listener_reminder():
     keyboard.add_hotkey("ctrl+space", show_reminder_window)
     keyboard.wait()
-
 
 init_db()
 
