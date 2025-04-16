@@ -32,13 +32,10 @@ class TasksReminderWindow(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.snooze_task_hour)
 
         def get_asset_path(relative_path):
-            """ Get path to resource, works for dev and for PyInstaller """
             if hasattr(sys, '_MEIPASS'):
-                # PyInstaller creates a temp folder and stores path in _MEIPASS
                 return os.path.join(sys._MEIPASS, relative_path)
             return os.path.join(os.path.abspath("."), relative_path)
 
-        # Inside your window init:
         self.iconbitmap(get_asset_path("Assets/favicon.ico"))
 
         font = ("Segoe UI", 10, "bold")
