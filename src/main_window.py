@@ -109,7 +109,7 @@ class MainWindow(tk.Tk):
             task_id = window_manager.task_reminder_window_instance.return_task_id()
             conn = sqlite3.connect("tasks.db")
             c = conn.cursor()
-            print(task_id)
+
             c.execute(
             "UPDATE tasks SET notified = 0 WHERE id = ?",
             (task_id,))

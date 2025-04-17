@@ -12,8 +12,7 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 import sv_ttk
-import sys
-import os
+from queue import Queue, Empty
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -24,6 +23,7 @@ from src.task_list_window import TasksListWindow
 from src.window_manager import task_window_instance, task_window_opening
 import src.window_manager as window_manager
 
+due_queue = Queue()
 
 def init_db():
     conn = sqlite3.connect("tasks.db")
@@ -82,7 +82,32 @@ def show_main_window():
     main_window.deiconify()
     main_window.lift()
     main_window.focus_force()
-    
+
+# Keep initial function for easy revert, if needed.
+# TODO: needs more testing
+# def check_for_due_tasks():
+#     while True:
+#         now = datetime.now().strftime("%Y-%m-%d %H:%M")
+#         conn = sqlite3.connect("tasks.db")
+#         c = conn.cursor()
+#         c.execute(
+#             """
+#             SELECT id, name, due_date FROM tasks
+#             WHERE due_date IS NOT NULL AND status = 'open' AND notified = 0 AND due_date <= ?
+#             ORDER BY due_date ASC
+#         """,
+#             (now,),
+#         )
+#         due_tasks = c.fetchall()
+
+#         for task in due_tasks:
+#             task_id, name, due_date = task
+#             show_reminder_window(task_id, name, due_date)
+#             c.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
+
+#         conn.commit()
+#         conn.close()
+#         time.sleep(10)
 
 def check_for_due_tasks():
     while True:
@@ -101,14 +126,32 @@ def check_for_due_tasks():
 
         for task in due_tasks:
             task_id, name, due_date = task
-            show_reminder_window(task_id, name, due_date)
+            due_queue.put(task)
             c.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
 
         conn.commit()
         conn.close()
         time.sleep(10)
 
+def process_due_queue():
+    try:
+        while True:
+            task_id, name, due_date = due_queue.get_nowait()
+            show_reminder_window(task_id, name, due_date)
+    except Empty:
+        pass
+    finally:
+        main_window.after(100, process_due_queue)
+
+def on_task_due(event):
+    import json
+    task = json.loads(event.data)
+    show_reminder_window(task["id"], task["name"], task["due_date"])
+
 main_window = MainWindow()
+
+main_window.bind("<<TaskDue>>", on_task_due)
+main_window.after(100, process_due_queue)
 
 def hotkey_listener():
     keyboard.add_hotkey("ctrl+shift+space", main_window.show_task_window)

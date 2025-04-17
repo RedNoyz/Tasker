@@ -189,7 +189,7 @@ class TasksReminderWindow(tk.Toplevel):
         conn.commit()
         conn.close()
 
-        messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times")
+        messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
 
         self.hide_reminder_window()
 
@@ -211,7 +211,7 @@ class TasksReminderWindow(tk.Toplevel):
         conn.commit()
         conn.close()
 
-        messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times")
+        messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
 
         self.hide_reminder_window()
 
@@ -231,7 +231,7 @@ class TasksReminderWindow(tk.Toplevel):
 
         print(completed_date)
 
-        messagebox.showinfo("Completed", f"Task completed on: {completed_date}")
+        messagebox.showinfo("Completed", f"Task completed on: {completed_date}", parent=self)
 
         self.hide_reminder_window()
 
