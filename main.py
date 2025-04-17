@@ -75,7 +75,6 @@ def show_task_window():
         window_manager.task_window_opening = True
 
         if window_manager.task_window_instance is None or not window_manager.task_window_instance.winfo_exists():
-            from src.task_window import TasksWindow
             window_manager.task_window_instance = TasksWindow()
         else:
             win = window_manager.task_window_instance
