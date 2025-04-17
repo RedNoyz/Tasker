@@ -24,6 +24,7 @@ from src.task_list_window import TasksListWindow
 from src.window_manager import task_window_instance, task_window_opening
 import src.window_manager as window_manager
 
+
 def init_db():
     conn = sqlite3.connect("tasks.db")
     c = conn.cursor()
@@ -68,28 +69,6 @@ def quit_app(icon):
     main_window.destroy()
     sys.exit()
 
-def show_task_window():
-    if window_manager.task_window_opening:
-        return
-    try:
-        window_manager.task_window_opening = True
-
-        if window_manager.task_window_instance is None or not window_manager.task_window_instance.winfo_exists():
-            window_manager.task_window_instance = TasksWindow()
-        else:
-            win = window_manager.task_window_instance
-            win.deiconify()
-            win.lift()
-            win.focus_force()
-            win.attributes('-topmost', True)
-            win.after(100, lambda: win.attributes('-topmost', False))
-
-    except Exception as e:
-        print("Error showing task window:", e)
-        window_manager.task_window_instance = None
-    finally:
-        window_manager.task_window_opening = False
-
 def show_reminder_window(task_id, task_name, task_due_date):
     task_window = TasksReminderWindow(task_id, task_name, task_due_date)
     task_window.deiconify()
@@ -127,14 +106,10 @@ def check_for_due_tasks():
         conn.close()
         time.sleep(10)
 
-
+main_window = MainWindow()
 
 def hotkey_listener():
-    keyboard.add_hotkey("ctrl+shift+space", show_task_window)
-    keyboard.wait()
-
-def hotkey_listener_reminder():
-    keyboard.add_hotkey("ctrl+space", show_reminder_window)
+    keyboard.add_hotkey("ctrl+shift+space", main_window.show_task_window)
     keyboard.wait()
 
 init_db()
@@ -143,8 +118,5 @@ threading.Thread(target=hotkey_listener, daemon=True).start()
 threading.Thread(target=check_for_due_tasks, daemon=True).start()
 threading.Thread(target=setup_tray, daemon=True).start()
 
-
-
-main_window = MainWindow()
 sv_ttk.set_theme("dark")
 main_window.mainloop()
