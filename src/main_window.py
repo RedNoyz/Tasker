@@ -17,7 +17,6 @@ from src.task_list_window import TasksListWindow
 from src.window_manager import task_window_instance, task_window_opening
 import src.window_manager as window_manager
 
-task_window_instance = None
 task_list_windwow_instance = None
 
 class MainWindow(tk.Tk): 
