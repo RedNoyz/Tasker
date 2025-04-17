@@ -7,6 +7,7 @@ Download the exe. Run. Enjoy.
 New button added to show the task list.
 
 The Task window can be spawned with "ctrl+shift+space" key combo.
+
 ![main_window](https://github.com/user-attachments/assets/926ba1a8-f335-437d-87c5-26b3476572e6)
 
 
