@@ -34,7 +34,6 @@ def init_db():
             name TEXT NOT NULL,
             due_date TIMESTAMP,
             created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
-            notified INTEGER DEFAULT 0,
             status TEXT DEFAULT 'open',
             complete_date TIMESTAMP,
             snooze_counter INTEGER DEFAULT 0
@@ -106,7 +105,7 @@ def check_for_due_tasks():
         c.execute(
             """
             SELECT id, name, due_date FROM tasks
-            WHERE due_date IS NOT NULL AND status = 'open' AND notified = 0 AND due_date <= ?
+            WHERE due_date IS NOT NULL AND status = 'open' AND due_date <= ?
             ORDER BY due_date ASC
         """,
             (now,),
@@ -116,8 +115,6 @@ def check_for_due_tasks():
         for task in due_tasks:
             task_id, name, due_date = task
             show_reminder_window(task_id, name, due_date)
-            # Mark as notified so it doesn't remind again
-            c.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
 
         conn.commit()
         conn.close()

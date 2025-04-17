@@ -16,6 +16,7 @@ from src.task_window import TasksWindow
 from src.task_list_window import TasksListWindow
 
 task_window_instance = None
+task_list_windwow_instance = None
 
 class MainWindow(tk.Tk): 
 
@@ -80,7 +81,14 @@ class MainWindow(tk.Tk):
             task_window_instance = None
 
     def show_task_list_window(self):
-        task_list_window = TasksListWindow()
-        task_list_window.deiconify()
-        task_list_window.lift()
-        task_list_window.focus_force()
+        global task_list_windwow_instance
+        try:
+            if task_list_windwow_instance is None or not task_list_windwow_instance.winfo_exists():
+                task_list_windwow_instance = TasksListWindow()
+            else:
+                task_list_windwow_instance.deiconify()
+                task_list_windwow_instance.lift()
+                task_list_windwow_instance.focus_force()
+        except Exception as e:
+            print("Error showing task list window:", e)
+            task_list_windwow_instance = None
