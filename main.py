@@ -21,8 +21,8 @@ from src.main_window import MainWindow
 from src.task_window import TasksWindow
 from src.task_reminder_window import TasksReminderWindow
 from src.task_list_window import TasksListWindow
-
-task_window_instance = None
+from src.window_manager import task_window_instance, task_window_opening
+import src.window_manager as window_manager
 
 def init_db():
     conn = sqlite3.connect("tasks.db")
@@ -69,19 +69,27 @@ def quit_app(icon):
     sys.exit()
 
 def show_task_window():
-    global task_window_instance
+    if window_manager.task_window_opening:
+        return
     try:
-        if task_window_instance is None or not task_window_instance.winfo_exists():
-            task_window_instance = TasksWindow()
+        window_manager.task_window_opening = True
+
+        if window_manager.task_window_instance is None or not window_manager.task_window_instance.winfo_exists():
+            from src.task_window import TasksWindow
+            window_manager.task_window_instance = TasksWindow()
         else:
-            task_window_instance.deiconify()
-            task_window_instance.lift()
-            task_window_instance.focus_force()
-            task_window_instance.attributes('-topmost', True)
-            task_window_instance.after(100, lambda: task_window_instance.attributes('-topmost', False))
+            win = window_manager.task_window_instance
+            win.deiconify()
+            win.lift()
+            win.focus_force()
+            win.attributes('-topmost', True)
+            win.after(100, lambda: win.attributes('-topmost', False))
+
     except Exception as e:
         print("Error showing task window:", e)
-        task_window_instance = None
+        window_manager.task_window_instance = None
+    finally:
+        window_manager.task_window_opening = False
 
 def show_reminder_window(task_id, task_name, task_due_date):
     task_window = TasksReminderWindow(task_id, task_name, task_due_date)

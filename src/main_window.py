@@ -14,6 +14,8 @@ import sys
 
 from src.task_window import TasksWindow
 from src.task_list_window import TasksListWindow
+from src.window_manager import task_window_instance, task_window_opening
+import src.window_manager as window_manager
 
 task_window_instance = None
 task_list_windwow_instance = None
@@ -66,19 +68,28 @@ class MainWindow(tk.Tk):
         self.withdraw()
 
     def show_task_window(self):
-        global task_window_instance
+        if window_manager.task_window_opening:
+            return
+
         try:
-            if task_window_instance is None or not task_window_instance.winfo_exists():
-                task_window_instance = TasksWindow()
+            window_manager.task_window_opening = True
+
+            if window_manager.task_window_instance is None or not window_manager.task_window_instance.winfo_exists():
+                from src.task_window import TasksWindow
+                window_manager.task_window_instance = TasksWindow()
             else:
-                task_window_instance.deiconify()
-                task_window_instance.lift()
-                task_window_instance.focus_force()
-                task_window_instance.attributes('-topmost', True)
-                task_window_instance.after(100, lambda: task_window_instance.attributes('-topmost', False))
+                win = window_manager.task_window_instance
+                win.deiconify()
+                win.lift()
+                win.focus_force()
+                win.attributes('-topmost', True)
+                win.after(100, lambda: win.attributes('-topmost', False))
+
         except Exception as e:
             print("Error showing task window:", e)
-            task_window_instance = None
+            window_manager.task_window_instance = None
+        finally:
+            window_manager.task_window_opening = False
 
     def show_task_list_window(self):
         global task_list_windwow_instance
