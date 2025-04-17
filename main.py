@@ -21,6 +21,7 @@ from src.task_window import TasksWindow
 from src.task_reminder_window import TasksReminderWindow
 from src.task_list_window import TasksListWindow
 from src.window_manager import task_window_instance, task_window_opening
+from src.window_manager import task_reminder_windows
 import src.window_manager as window_manager
 
 due_queue = Queue()
@@ -71,43 +72,27 @@ def quit_app(icon):
     sys.exit()
 
 def show_reminder_window(task_id, task_name, task_due_date):
-    window_manager.task_reminder_window_instance = TasksReminderWindow(task_id, task_name, task_due_date)
-    window_manager.task_reminder_window_instance.deiconify()
-    window_manager.task_reminder_window_instance.lift()
-    window_manager.task_reminder_window_instance.focus_force() 
-    window_manager.task_reminder_window_instance.attributes('-topmost', True)
-    window_manager.task_reminder_window_instance.after(100, lambda: window_manager.task_reminder_window_instance.attributes('-topmost', False ))
+    inst = TasksReminderWindow(task_id, task_name, task_due_date)
+    window_manager.task_reminder_windows.append(inst)
+
+    def on_close():
+        try:
+            window_manager.task_reminder_windows.remove(inst)
+        except ValueError:
+            pass
+        inst.destroy()
+
+    inst.protocol("WM_DELETE_WINDOW", on_close)
+    inst.deiconify()
+    inst.lift()
+    inst.focus_force()
+    inst.attributes('-topmost', True)
+    inst.after(100, lambda: inst.attributes('-topmost', False))
 
 def show_main_window():
     main_window.deiconify()
     main_window.lift()
     main_window.focus_force()
-
-# Keep initial function for easy revert, if needed.
-# TODO: needs more testing
-# def check_for_due_tasks():
-#     while True:
-#         now = datetime.now().strftime("%Y-%m-%d %H:%M")
-#         conn = sqlite3.connect("tasks.db")
-#         c = conn.cursor()
-#         c.execute(
-#             """
-#             SELECT id, name, due_date FROM tasks
-#             WHERE due_date IS NOT NULL AND status = 'open' AND notified = 0 AND due_date <= ?
-#             ORDER BY due_date ASC
-#         """,
-#             (now,),
-#         )
-#         due_tasks = c.fetchall()
-
-#         for task in due_tasks:
-#             task_id, name, due_date = task
-#             show_reminder_window(task_id, name, due_date)
-#             c.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
-
-#         conn.commit()
-#         conn.close()
-#         time.sleep(10)
 
 def check_for_due_tasks():
     while True:
@@ -117,16 +102,18 @@ def check_for_due_tasks():
         c.execute(
             """
             SELECT id, name, due_date FROM tasks
-            WHERE due_date IS NOT NULL AND status = 'open' AND notified = 0 AND due_date <= ?
+            WHERE due_date IS NOT NULL
+              AND status = 'open'
+              AND notified = 0
+              AND due_date <= ?
             ORDER BY due_date ASC
-        """,
+            """,
             (now,),
         )
         due_tasks = c.fetchall()
 
-        for task in due_tasks:
-            task_id, name, due_date = task
-            due_queue.put(task)
+        for task_id, name, due_date in due_tasks:
+            due_queue.put((task_id, name, due_date))
             c.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
 
         conn.commit()
@@ -143,40 +130,43 @@ def process_due_queue():
     finally:
         main_window.after(100, process_due_queue)
 
-def on_task_due(event):
-    import json
-    task = json.loads(event.data)
-    show_reminder_window(task["id"], task["name"], task["due_date"])
+def reset_notified_worker(interval_secs=30):
+    while True:
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
 
-# def reset_notified_worker(interval_secs=10):
-#     while True:
-#         time.sleep(interval_secs)
-#         conn = sqlite3.connect("tasks.db")
-#         c = conn.cursor()
+        live_ids = []
+        for inst in list(window_manager.task_reminder_windows):
+            if inst.winfo_exists():
+                live_ids.append(inst.return_task_id())
+            else:
+                window_manager.task_reminder_windows.remove(inst)
 
-#         inst = window_manager.task_reminder_window_instance
+        if live_ids:
+            placeholders = ",".join("?" for _ in live_ids)
+            sql = (
+                "UPDATE tasks SET notified = 0 "
+                "WHERE notified = 1 AND status = 'open' "
+                f"AND id NOT IN ({placeholders})"
+            )
+            c.execute(sql, live_ids)
+        else:
+            c.execute(
+                "UPDATE tasks SET notified = 0 WHERE notified = 1 AND status = 'open'"
+            )
 
-#         if inst is not None and inst.winfo_exists():
-#             current = inst.return_task_id()
-#             c.execute("UPDATE tasks SET notified = 0 WHERE notified = 1 AND status = 'open' AND id != ?",
-#                 (current,),)
+        updated = c.rowcount
 
-#         else:
-#             c.execute(
-#                 "UPDATE tasks SET notified = 0 WHERE notified = 1 AND status = 'open'"
-#             )
+        conn.commit()
+        conn.close()
 
-#         updated = c.rowcount
-        
-#         conn.commit()
-#         conn.close()
-
-#         if updated:
-#             print(f"[reset_notified_worker] reset {updated} tasks")
+        if updated:
+            print(f"[reset_notified_worker] reset {updated} tasks")
+            
+        time.sleep(interval_secs)
 
 main_window = MainWindow()
 
-main_window.bind("<<TaskDue>>", on_task_due)
 main_window.after(100, process_due_queue)
 
 def hotkey_listener():
@@ -185,10 +175,10 @@ def hotkey_listener():
 
 init_db()
 
-threading.Thread(target=hotkey_listener, daemon=True).start()
 threading.Thread(target=check_for_due_tasks, daemon=True).start()
+threading.Thread(target=reset_notified_worker, daemon=True).start()
+threading.Thread(target=hotkey_listener, daemon=True).start()
 threading.Thread(target=setup_tray, daemon=True).start()
-# threading.Thread(target=reset_notified_worker, args=(10,), daemon=True).start()
 
 sv_ttk.set_theme("dark")
 main_window.mainloop()

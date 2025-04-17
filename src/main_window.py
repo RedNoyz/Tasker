@@ -105,15 +105,25 @@ class MainWindow(tk.Tk):
             task_list_window_instance = None
 
     def notified_set_to_false(self):
-        if window_manager.task_reminder_window_instance is not None and window_manager.task_reminder_window_instance.winfo_exists():
-            task_id = window_manager.task_reminder_window_instance.return_task_id()
-            conn = sqlite3.connect("tasks.db")
-            c = conn.cursor()
+        conn = sqlite3.connect("tasks.db")
+        c = conn.cursor()
 
-            c.execute(
-            "UPDATE tasks SET notified = 0 WHERE id = ?",
-            (task_id,))
-            
-            conn.commit()
-            conn.close()
+        for inst in list(window_manager.task_reminder_windows):
+            if inst.winfo_exists():
+                task_id = inst.return_task_id()
+                c.execute(
+                    "UPDATE tasks SET notified = 0 WHERE id = ?",
+                    (task_id,)
+                )
+            else:
+                window_manager.task_reminder_windows.remove(inst)
+
+        conn.commit()
+        conn.close()
+
+        try:
+            window_manager.task_reminder_windows.remove(self)
+        except ValueError:
+            pass
+
         self.destroy()
