@@ -156,7 +156,7 @@ class TasksWindow(tk.Toplevel):
         print(task_description)
         print(due_date)
 
-        self.entry.delete(0, tk.END)
+        # self.entry.delete(0, tk.END)
         self.save_task_to_db(task_description, due_date)
 
     def center_window(self):
