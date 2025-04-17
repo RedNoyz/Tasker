@@ -31,12 +31,7 @@ class TasksReminderWindow(tk.Toplevel):
         self.focus_force()
         self.protocol("WM_DELETE_WINDOW", self.snooze_task_hour)
 
-        def get_asset_path(relative_path):
-            if hasattr(sys, '_MEIPASS'):
-                return os.path.join(sys._MEIPASS, relative_path)
-            return os.path.join(os.path.abspath("."), relative_path)
-
-        self.iconbitmap(get_asset_path("Assets/favicon.ico"))
+        self.iconbitmap(self.get_asset_path("Assets/favicon.ico"))
 
         font = ("Segoe UI", 10, "bold")
 
@@ -133,7 +128,7 @@ class TasksReminderWindow(tk.Toplevel):
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
     def play_sound(self):
-        winsound.PlaySound('E:\\My Projects\\Tasker\\Assets\\notification_sound.wav', winsound.SND_FILENAME)
+        winsound.PlaySound(self.get_asset_path('Assets/notification_sound.wav'), winsound.SND_FILENAME)
     
     def hide_reminder_window(self):
         self.destroy()
@@ -239,3 +234,14 @@ class TasksReminderWindow(tk.Toplevel):
         messagebox.showinfo("Completed", f"Task completed on: {completed_date}")
 
         self.hide_reminder_window()
+
+    def get_asset_path(self, relative_path):
+        if hasattr(sys, '_MEIPASS'):
+            return os.path.join(sys._MEIPASS, relative_path)
+        return os.path.join(os.path.abspath("."), relative_path)
+    
+    def get_task_id(self, task_id):
+        self.task_id = int(task_id)
+
+    def return_task_id(self):
+        return self.task_id

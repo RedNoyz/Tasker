@@ -31,9 +31,7 @@ class TasksWindow(tk.Toplevel):
                 return os.path.join(sys._MEIPASS, relative_path)
             return os.path.join(os.path.abspath("."), relative_path)
         
-        print(get_asset_path("Assets/favicon.ico"))
         self.iconbitmap(get_asset_path("Assets/favicon.ico"))
-
 
         font = ("Segoe UI", 10, "bold")
 
