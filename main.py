@@ -77,6 +77,7 @@ def show_reminder_window(task_id, task_name, task_due_date):
 
     def on_close():
         try:
+            TasksReminderWindow.snooze_task_hour(inst)
             window_manager.task_reminder_windows.remove(inst)
         except ValueError:
             pass

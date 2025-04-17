@@ -12,15 +12,20 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 import winsound
+import src.window_manager as window_manager
 
 
-class TasksReminderWindow(tk.Toplevel): 
+class TasksReminderWindow(tk.Toplevel):
+    sound_played = False
 
     def __init__(self, task_id, task_name, task_due_date, *args, callback=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        sound_thread = threading.Thread(target=self.play_sound)
-        sound_thread.start()
+        if not TasksReminderWindow.sound_played:
+            threading.Thread(target=self._play_sound, daemon=True).start()
+            TasksReminderWindow.sound_played = True
+            
+        window_manager.task_reminder_windows.append(self)
 
         self.callback = callback
         self.geometry("700x400")
@@ -129,8 +134,11 @@ class TasksReminderWindow(tk.Toplevel):
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-    def play_sound(self):
-        winsound.PlaySound(self.get_asset_path('Assets/notification_sound.wav'), winsound.SND_FILENAME)
+    def _play_sound(self):
+        winsound.PlaySound(
+            self.get_asset_path('Assets/notification_sound.wav'),
+            winsound.SND_FILENAME
+        )
     
     def hide_reminder_window(self):
         self.destroy()
