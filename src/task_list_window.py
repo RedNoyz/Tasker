@@ -47,12 +47,10 @@ class TasksListWindow(tk.Toplevel):
                   foreground=[('selected', 'black')])
 
         self.tree = ttk.Treeview(self, columns=("ID", "Title", "Status", "Due Date"), show="headings", selectmode="extended")
-        for col, text in [
-            ("ID", "ID"),
-            ("Title", "Title"),
-            ("Status", "Status"),
-            ("Due Date", "Due Date"),]:
-            self.tree.heading(col, text=text, anchor=tk.CENTER)
+        self.tree.heading("ID",       text="ID",       command=lambda: self.sort_by("ID", False))
+        self.tree.heading("Title",    text="Title")
+        self.tree.heading("Status",   text="Status")
+        self.tree.heading("Due Date", text="Due Date", command=lambda: self.sort_by("Due Date", False))
 
         self.tree.column("ID",        width=50,  minwidth=50,  stretch=False, anchor=tk.CENTER)
         self.tree.column("Status",    width=80,  minwidth=80,  stretch=False, anchor=tk.CENTER)
@@ -186,3 +184,24 @@ class TasksListWindow(tk.Toplevel):
     def select_all(self, event):
         for item in self.tree.get_children():
             self.tree.selection_add(item)
+
+    def sort_by(self, col, descending):
+        data = [(self.tree.set(item, col), item) for item in self.tree.get_children('')]
+
+        if col == "ID":
+            keyfunc = lambda t: int(t[0])
+        elif col == "Due Date":
+            keyfunc = lambda t: datetime.strptime(t[0], "%Y-%m-%d %H:%M")
+        else:
+            keyfunc = lambda t: t[0].lower()
+
+        data.sort(key=keyfunc, reverse=descending)
+
+        for index, (_, item) in enumerate(data):
+            self.tree.move(item, '', index)
+
+        self.tree.heading(
+            col,
+            text=col,
+            command=lambda: self.sort_by(col, not descending)
+        )
