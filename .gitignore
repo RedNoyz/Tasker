@@ -1,3 +1,4 @@
 tasks.db
 /build
 /dist
+/src/__pycache__
