@@ -62,6 +62,7 @@ class TasksListWindow(tk.Toplevel):
 
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
+        self.tree.bind("<Button-1>", self.on_tree_click, add="+")
 
         self.button_frame = tk.Frame(self)
         self.button_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=10)
@@ -72,13 +73,13 @@ class TasksListWindow(tk.Toplevel):
         self.mark_done_btn = tk.Button(self.button_frame, text="❌ Delete Task", command=self.on_delete, bg="darkred")
         self.mark_done_btn.pack(pady=10)
 
-        self.refresh_list_open = tk.Button(self.button_frame, text="🔃 Refresh Open Tasks", command=self.refresh_tree)
+        self.refresh_list_open = tk.Button(self.button_frame, text="🔃 Show Open Tasks", command=self.refresh_tree)
         self.refresh_list_open.pack(pady=10)
 
-        self.refresh_list_closed= tk.Button(self.button_frame, text="🔃 Refresh Complete Tasks", command=self.refresh_closed_tasks)
+        self.refresh_list_closed= tk.Button(self.button_frame, text="🔃 Show Complete Tasks", command=self.refresh_closed_tasks)
         self.refresh_list_closed.pack(pady=10)
 
-        self.refresh_list_all = tk.Button(self.button_frame, text="🔃 Refresh All Tasks", command=self.refresh_all_tasks)
+        self.refresh_list_all = tk.Button(self.button_frame, text="🔃 Show All Tasks", command=self.refresh_all_tasks)
         self.refresh_list_all.pack(pady=10)
 
         self.bind("<Control-a>", self.select_all)
@@ -181,6 +182,13 @@ class TasksListWindow(tk.Toplevel):
         conn.close()
         return tasks
     
+
+    def on_tree_click(self, event):
+        row_id = self.tree.identify_row(event.y)
+        if not row_id:
+            for sel in self.tree.selection():
+                self.tree.selection_remove(sel)
+
     def select_all(self, event):
         for item in self.tree.get_children():
             self.tree.selection_add(item)
