@@ -136,7 +136,7 @@ class TasksReminderWindow(tk.Toplevel):
         winsound.PlaySound('E:\\My Projects\\Tasker\\Assets\\notification_sound.wav', winsound.SND_FILENAME)
     
     def hide_reminder_window(self):
-        self.withdraw()
+        self.destroy()
 
     def get_task_and_time(self):
         selected_date = self.date_entry.get_date()

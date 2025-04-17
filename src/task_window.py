@@ -172,7 +172,7 @@ class TasksWindow(tk.Toplevel):
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
     def hide_task_window(self):
-        self.withdraw()
+        self.destroy()
 
     def save_task_to_db(self, name, due_date):
         conn = sqlite3.connect("tasks.db")

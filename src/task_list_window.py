@@ -26,6 +26,8 @@ class TasksListWindow(tk.Toplevel):
         self.transient(None)
         font = ("Segoe UI", 10, "bold")
 
+        self.warning_shown = False
+
         def get_asset_path(relative_path):
             if hasattr(sys, '_MEIPASS'):
                 return os.path.join(sys._MEIPASS, relative_path)
@@ -97,7 +99,10 @@ class TasksListWindow(tk.Toplevel):
     def on_mark_done(self):
         selected_items = self.tree.selection()
         if not selected_items:
-            messagebox.showwarning("No Selection", "Please select a task to mark as done.")
+            if not self.warning_shown:
+                self.warning_shown = True
+                messagebox.showwarning("No Selection", "Please select a task to mark as done.", parent=self)
+                self.warning_shown = False
             return
 
         for item in selected_items:
@@ -123,7 +128,10 @@ class TasksListWindow(tk.Toplevel):
     def on_delete(self):
         selected_items = self.tree.selection()
         if not selected_items:
-            messagebox.showwarning("No Selection", "Please select a task to delete.")
+            if not self.warning_shown:
+                self.warning_shown = True
+                messagebox.showwarning("No Selection", "Please select a task to delete.", parent=self)
+                self.warning_shown = False
             return
 
         confirm = messagebox.askyesno("Confirm Delete", "Are you sure you want to delete the selected task(s)?")
@@ -169,6 +177,5 @@ class TasksListWindow(tk.Toplevel):
         return tasks
     
     def select_all(self, event):
-        """Select all rows in the Treeview."""
         for item in self.tree.get_children():
             self.tree.selection_add(item)
