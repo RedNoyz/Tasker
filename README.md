@@ -1,32 +1,23 @@
 # Tasker
 
-Install [Python. v3.10.9 recommended](https://www.python.org/downloads/release/python-3109/).
-
-Download and extract the zip file.
-
-Run the tasker.bat file. This will install the required packages and run the Tasker app.
-- **Optional**, add a shortcut to the tasker.bat file in the startup apps to have it run automatically on windows boot.
---------------------------------------------------------------------------------------------------------------------------------
+Download the exe. Run. Enjoy.
 
 **Main Window**
 
-At the moment, the main window is not needed as it doesn't have any functionality implemented. It can be hidden and will not affect the main functionality.
+New button added to show the task list.
 
 The Task window can be spawned with "ctrl+shift+space" key combo.
+![main_window](https://github.com/user-attachments/assets/926ba1a8-f335-437d-87c5-26b3476572e6)
 
-![main_window](https://github.com/user-attachments/assets/b0105f36-6768-4e44-904b-5ac9de39260f)
-
---------------------------------------------------------------------------------------------------------------------------------
 
 **New Task Window**
-
 The Task window can be spawned with "ctrl+shift+space" key combo.
-![new_task_window](https://github.com/user-attachments/assets/4753c67e-74b9-4b18-871a-3c4be3f334cb)
-
---------------------------------------------------------------------------------------------------------------------------------
+![new_task](https://github.com/user-attachments/assets/d0e35c38-4010-4b89-83ce-8c76cfc410aa)
 
 **Reminder Window**
-
 Closing the reminder window will automatically snooze the reminder with 1h.
 ![reminder_window](https://github.com/user-attachments/assets/b01deafa-316f-4ad5-a509-f4320b533e2a)
 
+**Task List Window**
+Now all the tasks can be shown. The default list is with open tasks.
+![image](https://github.com/user-attachments/assets/4b09ef49-4bac-4b4d-ae25-e878123b1db4)
