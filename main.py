@@ -148,6 +148,32 @@ def on_task_due(event):
     task = json.loads(event.data)
     show_reminder_window(task["id"], task["name"], task["due_date"])
 
+# def reset_notified_worker(interval_secs=10):
+#     while True:
+#         time.sleep(interval_secs)
+#         conn = sqlite3.connect("tasks.db")
+#         c = conn.cursor()
+
+#         inst = window_manager.task_reminder_window_instance
+
+#         if inst is not None and inst.winfo_exists():
+#             current = inst.return_task_id()
+#             c.execute("UPDATE tasks SET notified = 0 WHERE notified = 1 AND status = 'open' AND id != ?",
+#                 (current,),)
+
+#         else:
+#             c.execute(
+#                 "UPDATE tasks SET notified = 0 WHERE notified = 1 AND status = 'open'"
+#             )
+
+#         updated = c.rowcount
+        
+#         conn.commit()
+#         conn.close()
+
+#         if updated:
+#             print(f"[reset_notified_worker] reset {updated} tasks")
+
 main_window = MainWindow()
 
 main_window.bind("<<TaskDue>>", on_task_due)
@@ -162,6 +188,7 @@ init_db()
 threading.Thread(target=hotkey_listener, daemon=True).start()
 threading.Thread(target=check_for_due_tasks, daemon=True).start()
 threading.Thread(target=setup_tray, daemon=True).start()
+# threading.Thread(target=reset_notified_worker, args=(10,), daemon=True).start()
 
 sv_ttk.set_theme("dark")
 main_window.mainloop()
