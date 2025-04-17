@@ -76,12 +76,12 @@ class MainWindow(tk.Tk):
             if window_manager.task_window_instance is None or not window_manager.task_window_instance.winfo_exists():
                 window_manager.task_window_instance = TasksWindow()
             else:
-                win = window_manager.task_window_instance
-                win.deiconify()
-                win.lift()
-                win.focus_force()
-                win.attributes('-topmost', True)
-                win.after(100, lambda: win.attributes('-topmost', False))
+                task_window = window_manager.task_window_instance
+                task_window.deiconify()
+                task_window.lift()
+                task_window.focus_force()
+                task_window.attributes('-topmost', True)
+                task_window.after(100, lambda: task_window.attributes('-topmost', False))
 
         except Exception as e:
             print("Error showing task window:", e)
