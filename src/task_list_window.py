@@ -47,10 +47,17 @@ class TasksListWindow(tk.Toplevel):
                   foreground=[('selected', 'black')])
 
         self.tree = ttk.Treeview(self, columns=("ID", "Title", "Status", "Due Date"), show="headings", selectmode="extended")
-        self.tree.heading("ID", text="ID")
-        self.tree.heading("Title", text="Title")
-        self.tree.heading("Status", text="Status")
-        self.tree.heading("Due Date", text="Due Date")
+        for col, text in [
+            ("ID", "ID"),
+            ("Title", "Title"),
+            ("Status", "Status"),
+            ("Due Date", "Due Date"),]:
+            self.tree.heading(col, text=text, anchor=tk.CENTER)
+
+        self.tree.column("ID",        width=50,  minwidth=50,  stretch=False, anchor=tk.CENTER)
+        self.tree.column("Status",    width=80,  minwidth=80,  stretch=False, anchor=tk.CENTER)
+        self.tree.column("Due Date",  width=120, minwidth=120, stretch=False, anchor=tk.CENTER)
+        self.tree.column("Title",     width=300, minwidth=150, stretch=True,  anchor=tk.W)
 
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscroll=self.scrollbar.set)
