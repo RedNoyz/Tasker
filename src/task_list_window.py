@@ -46,14 +46,16 @@ class TasksListWindow(tk.Toplevel):
                   background=[('selected', 'lightblue')],
                   foreground=[('selected', 'black')])
 
-        self.tree = ttk.Treeview(self, columns=("ID", "Title", "Status", "Due Date"), show="headings", selectmode="extended")
+        self.tree = ttk.Treeview(self, columns=("ID", "Title", "Status", "Notified", "Due Date"), show="headings", selectmode="extended")
         self.tree.heading("ID",       text="ID",       command=lambda: self.sort_by("ID", False))
         self.tree.heading("Title",    text="Title")
         self.tree.heading("Status",   text="Status")
+        self.tree.heading("Notified", text="Notified")
         self.tree.heading("Due Date", text="Due Date", command=lambda: self.sort_by("Due Date", False))
 
         self.tree.column("ID",        width=50,  minwidth=50,  stretch=False, anchor=tk.CENTER)
         self.tree.column("Status",    width=80,  minwidth=80,  stretch=False, anchor=tk.CENTER)
+        self.tree.column("Notified",    width=70,  minwidth=70,  stretch=False, anchor=tk.CENTER)
         self.tree.column("Due Date",  width=120, minwidth=120, stretch=False, anchor=tk.CENTER)
         self.tree.column("Title",     width=300, minwidth=150, stretch=True,  anchor=tk.W)
 
@@ -90,10 +92,13 @@ class TasksListWindow(tk.Toplevel):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
 
-        c.execute("SELECT id, name, status, due_date FROM tasks WHERE status = 'open' ORDER BY due_date ASC")
-        tasks = c.fetchall()
+        c.execute("SELECT id, name, status, notified, due_date FROM tasks WHERE status = 'open' ORDER BY due_date ASC")
+        rows = c.fetchall()
 
         conn.close()
+        tasks = [
+            (task_id, name, status, 'Yes' if notified else 'No', due_date)
+            for task_id, name, status, notified, due_date in rows]
         return tasks
     
     def refresh_tree(self):
@@ -160,10 +165,14 @@ class TasksListWindow(tk.Toplevel):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
 
-        c.execute("SELECT id, name, status, due_date FROM tasks ORDER BY due_date ASC")
-        tasks = c.fetchall()
-
+        c.execute("SELECT id, name, status, notified, due_date FROM tasks ORDER BY due_date ASC")
+        rows = c.fetchall()
         conn.close()
+
+        tasks = [
+            (task_id, name, status, 'Yes' if notified else 'No', due_date)
+            for task_id, name, status, notified, due_date in rows]
+
         return tasks
     
     def refresh_closed_tasks(self):
@@ -176,10 +185,14 @@ class TasksListWindow(tk.Toplevel):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
 
-        c.execute("SELECT id, name, status, due_date FROM tasks WHERE status = 'complete' ORDER BY due_date ASC")
-        tasks = c.fetchall()
-
+        c.execute("SELECT id, name, status, notified, due_date FROM tasks WHERE status = 'complete' ORDER BY due_date ASC")
+        rows = c.fetchall()
         conn.close()
+
+        tasks = [
+            (task_id, name, status, 'Yes' if notified else 'No', due_date)
+            for task_id, name, status, notified, due_date in rows]
+        
         return tasks
     
 
