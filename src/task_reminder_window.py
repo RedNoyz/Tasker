@@ -45,28 +45,30 @@ class TasksReminderWindow(tk.Toplevel):
 
         self.grid_rowconfigure(0, weight=0)  # Label row
         self.grid_rowconfigure(1, weight=0)  # Task Title row
-        self.grid_rowconfigure(2, weight=0)  # Date label row
-        self.grid_rowconfigure(3, weight=0)  # Date entry row
-        self.grid_rowconfigure(4, weight=0)  # Time label row
-        self.grid_rowconfigure(5, weight=0)  # Time entry row
-        self.grid_rowconfigure(6, weight=0)  # Buttons row
+        self.grid_rowconfigure(2, weight=0)  # Due Date label row
+        self.grid_rowconfigure(3, weight=0)  # Date label row
+        self.grid_rowconfigure(4, weight=0)  # Date entry row
+        self.grid_rowconfigure(5, weight=0)  # Time label row
+        self.grid_rowconfigure(6, weight=0)  # Time entry row
+        self.grid_rowconfigure(7, weight=0)  # Buttons row
 
         tk.Label(self, text="Task:", font=font).grid(row=0, column=1, pady=(10, 0), sticky="n", padx=10)
 
         self.selectable_label = tk.Text(self, height=1, width=50, wrap=tk.WORD, font=("Segoe UI", 12, "bold"), bd=0)
-        self.selectable_label.insert(tk.END, f"{task_name} | Due: {task_due_date}")
+        self.selectable_label.insert(tk.END, f"{task_name}")
         self.selectable_label.config(state=tk.DISABLED)
         self.selectable_label.grid(row=1, column=0, pady=10, padx=10, sticky="nsew", columnspan=3)
+        tk.Label(self, text=f"Due: {task_due_date}", font=("Segoe UI", 10), foreground="red").grid(row=2, column=0, pady=5, sticky="s", padx=10)
 
-        tk.Label(self, text="Select New Due Date:", font=font).grid(row=2, column=1, pady=5, sticky="s", padx=10)
+        tk.Label(self, text="Select New Due Date:", font=font).grid(row=3, column=1, pady=5, sticky="s", padx=10)
         self.date_entry = DateEntry(
             self, width=12, background="darkblue", foreground="white", borderwidth=2, year=2025
         )
-        self.date_entry.grid(row=3, column=1, pady=10, padx=10)
+        self.date_entry.grid(row=4, column=1, pady=10, padx=10)
 
-        tk.Label(self, text="Select Time:", font=font).grid(row=4, column=1, pady=5, sticky="n", padx=10)
+        tk.Label(self, text="Select Time:", font=font).grid(row=5, column=1, pady=5, sticky="n", padx=10)
         self.time_frame = tk.Frame(self)
-        self.time_frame.grid(row=5, column=1, pady=10, padx=10)
+        self.time_frame.grid(row=6, column=1, pady=10, padx=10)
 
         now = datetime.now()
         current_hour = (now + timedelta(hours=1)).hour
@@ -110,13 +112,13 @@ class TasksReminderWindow(tk.Toplevel):
         self.minute_spin.bind("<FocusOut>", self.format_minute_input)
 
         self.new_date_btn = ttk.Button(self, text="New Date", command=self.snooze_task_new_date)
-        self.new_date_btn.grid(row=6, column=0, pady=10, padx=10, sticky="ew")
+        self.new_date_btn.grid(row=7, column=0, pady=10, padx=10, sticky="ew")
 
         self.submit_btn = ttk.Button(self, text="Snooze 1h", command=self.snooze_task_hour)
-        self.submit_btn.grid(row=6, column=1, pady=10, padx=10, sticky="ew")
+        self.submit_btn.grid(row=7, column=1, pady=10, padx=10, sticky="ew")
         
         self.complete_btn = ttk.Button(self, text="Complete", command=self.complete_task)
-        self.complete_btn.grid(row=6, column=2, pady=10, padx=10, sticky="ew")
+        self.complete_btn.grid(row=7, column=2, pady=10, padx=10, sticky="ew")
 
     def center_window(self):
         screen_width = self.winfo_screenwidth()
