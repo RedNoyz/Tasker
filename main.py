@@ -13,6 +13,8 @@ from PIL import Image, ImageDraw
 import sys
 import sv_ttk
 from queue import Queue, Empty
+import functools, inspect
+import logging
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -20,9 +22,10 @@ from src.main_window import MainWindow
 from src.task_window import TasksWindow
 from src.task_reminder_window import TasksReminderWindow
 from src.task_list_window import TasksListWindow
-from src.window_manager import task_window_instance, task_window_opening
-from src.window_manager import task_reminder_windows
-import src.window_manager as window_manager
+from utils.window_manager import task_window_instance, task_window_opening
+from utils.window_manager import task_reminder_windows
+import utils.window_manager as window_manager
+from utils.logger import log_call, logger
 
 due_queue = Queue()
 
@@ -71,6 +74,7 @@ def quit_app(icon):
     main_window.destroy()
     sys.exit()
 
+@log_call
 def show_reminder_window(task_id, task_name, task_due_date):
     inst = TasksReminderWindow(task_id, task_name, task_due_date)
     window_manager.task_reminder_windows.append(inst)
@@ -90,6 +94,7 @@ def show_reminder_window(task_id, task_name, task_due_date):
     inst.attributes('-topmost', True)
     inst.after(100, lambda: inst.attributes('-topmost', False))
 
+@log_call
 def show_main_window():
     main_window.deiconify()
     main_window.lift()
@@ -171,7 +176,12 @@ main_window = MainWindow()
 main_window.after(100, process_due_queue)
 
 def hotkey_listener():
-    keyboard.add_hotkey("ctrl+shift+space", main_window.show_task_window)
+    keyboard.add_hotkey(
+        "ctrl+shift+space",
+        main_window.show_task_window,
+        suppress=True,
+        trigger_on_release=True
+    )
     keyboard.wait()
 
 init_db()

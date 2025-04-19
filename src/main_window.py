@@ -14,8 +14,9 @@ import sys
 
 from src.task_window import TasksWindow
 from src.task_list_window import TasksListWindow
-from src.window_manager import task_window_instance, task_window_opening
-import src.window_manager as window_manager
+from utils.window_manager import task_window_instance, task_window_opening
+import utils.window_manager as window_manager
+import utils.logger as logs
 
 task_list_window_instance = None
 
@@ -68,6 +69,7 @@ class MainWindow(tk.Tk):
     def hide_main_window(self):
         self.withdraw()
 
+    @logs.log_call
     def show_task_window(self):
         if window_manager.task_window_opening:
             return
@@ -91,6 +93,7 @@ class MainWindow(tk.Tk):
         finally:
             window_manager.task_window_opening = False
 
+    @logs.log_call
     def show_task_list_window(self):
         global task_list_window_instance
         try:
@@ -104,6 +107,7 @@ class MainWindow(tk.Tk):
             print("Error showing task list window:", e)
             task_list_window_instance = None
 
+    @logs.log_call
     def notified_set_to_false(self):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()

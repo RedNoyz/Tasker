@@ -2,3 +2,4 @@ tasks.db
 /build
 /dist
 /src/__pycache__
+*.log
