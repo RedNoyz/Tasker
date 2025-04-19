@@ -2,9 +2,10 @@
 # Trigger on version tags like v1.2.3
 name: Build and Release
 
-# Grant the workflow permission to create releases
-permissions:
-  contents: write
+# Grant write access for creating releases and uploading assets
+actions:
+  permissions:
+    contents: write
 
 on:
   push:
@@ -37,17 +38,21 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
+          body: |
+            Automated release of Tasker version ${{ github.ref_name }}
           draft: false
           prerelease: false
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
 
       - name: Upload executable asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: dist/Tasker.exe
