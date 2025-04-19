@@ -28,7 +28,7 @@ jobs:
       - name: Build executable with PyInstaller using spec
         run: |
           # Use your .spec file for customization (e.g., icons, datas, hidden imports)
-          pyinstaller Tasker.spec
+          pyinstaller main.spec
 
       - name: Create GitHub Release
         id: create_release
