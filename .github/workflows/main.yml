@@ -2,6 +2,10 @@
 # Trigger on version tags like v1.2.3
 name: Build and Release
 
+# Grant the workflow permission to create releases
+permissions:
+  contents: write
+
 on:
   push:
     tags:
@@ -10,6 +14,9 @@ on:
 jobs:
   build-and-publish:
     runs-on: windows-latest
+    # Make the GITHUB_TOKEN available for release creation
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Check out repository
