@@ -12,7 +12,7 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 import winsound
-import utils.logger as logs
+from utils.logger import log_call, logger
 
 class TasksWindow(tk.Toplevel): 
 
@@ -118,7 +118,7 @@ class TasksWindow(tk.Toplevel):
         dismiss_btn = ttk.Button(self, text="Cancel", command=self.hide_task_window)
         dismiss_btn.grid(row=7, column=0, pady=10, padx=10)
 
-    @logs.log_call
+    @log_call
     def get_task_and_time(self):
         task = self.entry.get()
         selected_date = self.date_entry.get_date() 
@@ -148,7 +148,7 @@ class TasksWindow(tk.Toplevel):
     def format_minute_input(self, event=None):
         self.minute_var.set(self.format_time_input(self.minute_var.get()))
 
-    @logs.log_call
+    @log_call
     def print_task(self):
         task_description, due_date = self.get_task_and_time()
 
@@ -158,7 +158,7 @@ class TasksWindow(tk.Toplevel):
         # self.entry.delete(0, tk.END)
         self.save_task_to_db(task_description, due_date)
 
-    @logs.log_call
+    @log_call
     def center_window(self):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
@@ -171,7 +171,7 @@ class TasksWindow(tk.Toplevel):
     def hide_task_window(self):
         self.destroy()
 
-    @logs.log_call
+    @log_call
     def save_task_to_db(self, name, due_date):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
@@ -184,7 +184,7 @@ class TasksWindow(tk.Toplevel):
 
         self.hide_task_window()
 
-    @logs.log_call
+    @log_call
     def check_entry(self, event=None):
         if self.entry.get().strip():
             self.submit_btn.config(state="normal")

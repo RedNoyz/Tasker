@@ -12,7 +12,7 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 import winsound
-import utils.logger as logs
+from utils.logger import log_call, logger
 
 
 class TasksListWindow(tk.Toplevel): 
@@ -104,14 +104,14 @@ class TasksListWindow(tk.Toplevel):
             for task_id, name, status, notified, due_date in rows]
         return tasks
     
-    @logs.log_call
+    @log_call
     def refresh_tree(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
         for task in self.get_task_list():
             self.tree.insert("", tk.END, values=task)
 
-    @logs.log_call
+    @log_call
     def on_mark_done(self):
         selected_items = self.tree.selection()
         if not selected_items:
@@ -127,7 +127,7 @@ class TasksListWindow(tk.Toplevel):
 
         self.refresh_tree()
 
-    @logs.log_call
+    @log_call
     def mark_task_as_done(self, task_id):
         conn = sqlite3.connect('tasks.db')
         cursor = conn.cursor()
@@ -135,7 +135,7 @@ class TasksListWindow(tk.Toplevel):
         conn.commit()
         conn.close()
 
-    @logs.log_call
+    @log_call
     def delete_task(self, task_id):
         conn = sqlite3.connect('tasks.db')
         cursor = conn.cursor()
@@ -143,7 +143,7 @@ class TasksListWindow(tk.Toplevel):
         conn.commit()
         conn.close()
 
-    @logs.log_call
+    @log_call
     def on_delete(self):
         selected_items = self.tree.selection()
         if not selected_items:
@@ -163,14 +163,14 @@ class TasksListWindow(tk.Toplevel):
 
         self.refresh_tree()
     
-    @logs.log_call
+    @log_call
     def refresh_all_tasks(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
         for task in self.get_all_tasks_list():
             self.tree.insert("", tk.END, values=task)
 
-    @logs.log_call
+    @log_call
     def get_all_tasks_list(self):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
@@ -185,14 +185,14 @@ class TasksListWindow(tk.Toplevel):
 
         return tasks
     
-    @logs.log_call
+    @log_call
     def refresh_closed_tasks(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
         for task in self.get_closed_tasks_list():
             self.tree.insert("", tk.END, values=task)
 
-    @logs.log_call
+    @log_call
     def get_closed_tasks_list(self):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
@@ -207,18 +207,18 @@ class TasksListWindow(tk.Toplevel):
         
         return tasks
     
-    @logs.log_call
+    @log_call
     def on_tree_click(self, event):
         row_id = self.tree.identify_row(event.y)
         if not row_id:
             for sel in self.tree.selection():
                 self.tree.selection_remove(sel)
-    @logs.log_call
+    @log_call
     def select_all(self, event):
         for item in self.tree.get_children():
             self.tree.selection_add(item)
 
-    @logs.log_call
+    @log_call
     def sort_by(self, col, descending):
         data = [(self.tree.set(item, col), item) for item in self.tree.get_children('')]
 
@@ -240,6 +240,6 @@ class TasksListWindow(tk.Toplevel):
             command=lambda: self.sort_by(col, not descending)
         )
 
-    @logs.log_call
+    @log_call
     def close_window(self):
         self.destroy()

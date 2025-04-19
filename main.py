@@ -22,9 +22,9 @@ from src.main_window import MainWindow
 from src.task_window import TasksWindow
 from src.task_reminder_window import TasksReminderWindow
 from src.task_list_window import TasksListWindow
-from utils.window_manager import task_window_instance, task_window_opening
-from utils.window_manager import task_reminder_windows
-import utils.window_manager as window_manager
+from src.window_manager import task_window_instance, task_window_opening
+from src.window_manager import task_reminder_windows
+import window_manager as window_manager
 from utils.logger import log_call, logger
 
 due_queue = Queue()

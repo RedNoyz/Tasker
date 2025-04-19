@@ -12,8 +12,8 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 import winsound
-import utils.window_manager as window_manager
-import utils.logger as logs
+import src.window_manager as window_manager
+from utils.logger import log_call, logger
 
 
 class TasksReminderWindow(tk.Toplevel):
@@ -126,7 +126,7 @@ class TasksReminderWindow(tk.Toplevel):
         self.complete_btn = ttk.Button(self, text="Complete", command=self.complete_task)
         self.complete_btn.grid(row=7, column=2, pady=10, padx=10, sticky="ew")
 
-    @logs.log_call
+    @log_call
     def center_window(self):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
@@ -136,18 +136,18 @@ class TasksReminderWindow(tk.Toplevel):
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-    @logs.log_call
+    @log_call
     def _play_sound(self):
         winsound.PlaySound(
             self.get_asset_path('Assets/notification_sound.wav'),
             winsound.SND_FILENAME
         )
     
-    @logs.log_call
+    @log_call
     def hide_reminder_window(self):
         self.destroy()
 
-    @logs.log_call
+    @log_call
     def get_task_and_time(self):
         selected_date = self.date_entry.get_date()
         selected_hour = self.hour_var.get()
@@ -177,7 +177,7 @@ class TasksReminderWindow(tk.Toplevel):
     def format_minute_input(self, event=None):
         self.minute_var.set(self.format_time_input(self.minute_var.get()))
     
-    @logs.log_call
+    @log_call
     def update_task_status(task_id, status):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
@@ -185,7 +185,7 @@ class TasksReminderWindow(tk.Toplevel):
         conn.commit()
         conn.close()
 
-    @logs.log_call
+    @log_call
     def snooze_task_hour(self):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
@@ -211,7 +211,7 @@ class TasksReminderWindow(tk.Toplevel):
 
         self.hide_reminder_window()
 
-    @logs.log_call
+    @log_call
     def snooze_task_new_date(self):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
@@ -234,7 +234,7 @@ class TasksReminderWindow(tk.Toplevel):
 
         self.hide_reminder_window()
 
-    @logs.log_call
+    @log_call
     def complete_task(self):
         conn = sqlite3.connect("tasks.db")
         c = conn.cursor()
