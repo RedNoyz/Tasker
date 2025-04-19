@@ -1,9 +1,8 @@
-# GitHub Actions workflow: build PyInstaller exe using spec and publish to GitHub Releases
+# GitHub Actions workflow: build PyInstaller exe using spec and upload to existing GitHub Release
 # Trigger on version tags like v1.2.3
-# Uses softprops/action-gh-release to handle release creation and asset upload in one step
 actions:
   permissions:
-    contents: write  # allow creating releases
+    contents: write  # allow uploading assets
 
 name: Build and Release
 on:
@@ -13,7 +12,6 @@ on:
 jobs:
   build-and-publish:
     runs-on: windows-latest
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -23,7 +21,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies from requirements
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -32,13 +30,13 @@ jobs:
         run: |
           pyinstaller Tasker.spec
 
-      - name: Create GitHub Release and upload asset
+      - name: Upload executable to existing GitHub Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: dist/Tasker.exe
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: Tasker-${{ github.ref_name }}.exe
           draft: false
           prerelease: false
