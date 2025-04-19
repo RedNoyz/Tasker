@@ -1,0 +1,63 @@
+# GitHub Actions workflow: build PyInstaller exe using spec and publish updates with PyUpdater
+# Trigger on version tags like v1.2.3
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pyupdater requests packaging
+
+      - name: Build executable with PyInstaller using spec
+        run: |
+          # Use your .spec file for customization (e.g., icons, datas, hidden imports)
+          pyinstaller Tasker.spec
+
+      - name: Generate update packages with PyUpdater
+        run: |
+          pyupdater pkg --process
+          pyupdater pkg --build
+          pyupdater pkg --sign
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload executable asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/Tasker.exe
+          asset_name: Tasker-${{ github.ref_name }}.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload update manifest
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: pyu-data/updates/manifest.json
+          asset_name: update_manifest.json
+          asset_content_type: application/json
