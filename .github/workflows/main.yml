@@ -2,6 +2,10 @@
 # Trigger on version tags like v1.2.3
 name: Build and Release
 
+# Grant the workflow permission to create releases
+permissions:
+  contents: write
+
 on:
   push:
     tags:
@@ -20,28 +24,30 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install dependencies from requirements
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
+          pip install -r requirements.txt
 
       - name: Build executable with PyInstaller using spec
         run: |
-          # Use your .spec file for customization (e.g., icons, datas, hidden imports)
-          pyinstaller main.spec
+          pyinstaller Tasker.spec
 
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload executable asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: dist/Tasker.exe
