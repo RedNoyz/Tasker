@@ -1,6 +1,7 @@
 import logging
 import functools
 import inspect
+import sys
 
 # configure logging once
 logging.basicConfig(
@@ -9,6 +10,9 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
 )
 logger = logging.getLogger("tasker")
+
+if getattr(sys, "frozen", False):
+    logging.disable(logging.DEBUG)
 
 def log_call(func):
     """Decorator that logs every call, including its caller."""
