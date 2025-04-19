@@ -1,21 +1,27 @@
+import os
+import sys
 import logging
 import functools
 import inspect
-import sys
 
-# configure logging once
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename="tasker.log",
-    format="%(asctime)s %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
-)
+IS_DEBUG_BUILD = (not getattr(sys, "frozen", False)) or (os.getenv("TASKER_DEBUG") == "1")
+
+if IS_DEBUG_BUILD:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        filename="tasker.log",
+        format="%(asctime)s %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
+    )
+else:
+    root = logging.getLogger()
+    root.addHandler(logging.NullHandler())
+    logging.disable(logging.CRITICAL)
+
 logger = logging.getLogger("tasker")
 
-if getattr(sys, "frozen", False):
-    logging.disable(logging.DEBUG)
-
 def log_call(func):
-    """Decorator that logs every call, including its caller."""
+    if not IS_DEBUG_BUILD:
+        return func
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         caller = inspect.stack()[1]
