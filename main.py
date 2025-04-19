@@ -15,6 +15,8 @@ import sv_ttk
 from queue import Queue, Empty
 import functools, inspect
 import logging
+import ctypes
+from ctypes import wintypes
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -28,6 +30,37 @@ import window_manager as window_manager
 from utils.logger import log_call, logger
 
 due_queue = Queue()
+
+kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+user32   = ctypes.WinDLL("user32",   use_last_error=True)
+
+# 1️⃣ Create (or open) our mutex — note: no Global\ prefix
+MUTEX_NAME = "TaskerSingletonMutex"
+hMutex = kernel32.CreateMutexW(None, wintypes.BOOL(False), MUTEX_NAME)
+
+# 1a) grab the error code
+err = ctypes.get_last_error()
+print(f"[singleton] CreateMutexW returned handle={hMutex}, err={err}")
+
+# 1b) ERROR_ALREADY_EXISTS is 183
+if err == 183:
+    print("[singleton] another instance detected, forwarding focus…")
+    # try focusing the existing window
+    TITLE = "Tasker"   # <- must exactly match MainWindow.__init__ self.title(...)
+    hwnd = user32.FindWindowW(None, TITLE)
+    print(f"[singleton] FindWindowW({TITLE!r}) -> hwnd={hwnd}")
+    if hwnd:
+        SW_RESTORE = 9
+        user32.ShowWindow(hwnd, SW_RESTORE)
+        user32.SetForegroundWindow(hwnd)
+        print("[singleton] focus sent successfully")
+    else:
+        print("[singleton] could not find window to focus")
+    sys.exit(0)
+
+# if we get here, no other instance was running
+print("[singleton] no other instance, continuing startup")
+
 
 def init_db():
     conn = sqlite3.connect("tasks.db")
