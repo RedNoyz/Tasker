@@ -1,17 +1,15 @@
 # GitHub Actions workflow: build PyInstaller exe using spec and publish to GitHub Releases
 # Trigger on version tags like v1.2.3
-name: Build and Release
-
-# Grant write access for creating releases and uploading assets
+# Uses softprops/action-gh-release to handle release creation and asset upload in one step
 actions:
   permissions:
-    contents: write
+    contents: write  # allow creating releases
 
+name: Build and Release
 on:
   push:
     tags:
       - 'v*.*.*'
-
 jobs:
   build-and-publish:
     runs-on: windows-latest
@@ -34,27 +32,13 @@ jobs:
         run: |
           pyinstaller Tasker.spec
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Create GitHub Release and upload asset
+        uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          files: dist/Tasker.exe
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: |
-            Automated release of Tasker version ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-
-      - name: Upload executable asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/Tasker.exe
-          asset_name: Tasker-${{ github.ref_name }}.exe
-          asset_content_type: application/octet-stream
