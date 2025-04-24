@@ -12,6 +12,7 @@ from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
 import subprocess
+import requests
 
 from src.task_window import TasksWindow
 from src.task_list_window import TasksListWindow
@@ -21,6 +22,8 @@ from utils.logger import log_call, logger
 from utils.version import __version__ as app_version
 
 task_list_window_instance = None
+
+GITHUB_API_RELEASES_URL = "https://api.github.com/repos/RedNoyz/Tasker/releases/latest"
 
 class MainWindow(tk.Tk): 
 
@@ -137,8 +140,19 @@ class MainWindow(tk.Tk):
 
         self.destroy()
 
-    def run_updater(self):
+    def get_remote_version(self):
         try:
-            subprocess.Popen(["updater.exe"], shell=True)
-        except Exception as e:
-            print(f"Failed to run updater: {e}")
+            response = requests.get(GITHUB_API_RELEASES_URL, timeout=5)
+            data = response.json()
+            return data["tag_name"].lstrip("v")
+        except Exception:
+            return None
+
+    def run_updater(self):
+        if self.get_remote_version() == app_version:
+            messagebox.showinfo("Latest Version", "You have the latest version.")
+        else:
+            try:
+                subprocess.Popen(["updater.exe"], shell=True)
+            except Exception as e:
+                print(f"Failed to run updater: {e}")

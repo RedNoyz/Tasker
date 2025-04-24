@@ -6,6 +6,7 @@ import os
 import threading
 import sv_ttk
 import psutil
+import sys
 
 GITHUB_API_RELEASES_URL = "https://api.github.com/repos/RedNoyz/Tasker/releases/latest"
 DOWNLOAD_URL = "https://github.com/RedNoyz/Tasker/releases/latest/download/Tasker.exe"
@@ -16,6 +17,17 @@ def is_tasker_running():
         if proc.info['name'] == "Tasker.exe":
             return True
     return False
+
+def launch_and_exit():
+    try:
+        subprocess.Popen([LOCAL_EXE])
+    finally:
+        root.quit()
+        sys.exit() 
+
+def show_success_and_exit():
+    messagebox.showinfo("Update Complete", "Tasker has been updated successfully.")
+    launch_and_exit()
 
 def get_local_version():
     try:
@@ -57,13 +69,12 @@ def start_download():
                 return
 
             download_file(DOWNLOAD_URL, LOCAL_EXE, update_progress)
-            with open("version.txt", "w") as f:
-                f.write(remote_version)
-            root.after(0, lambda: messagebox.showinfo("Update Complete", "Tasker has been updated successfully."))
-            os.startfile(LOCAL_EXE)
-            root.after(0, root.destroy)
+
+            root.after(0, show_success_and_exit)
+
         except Exception as e:
             root.after(0, lambda: messagebox.showerror("Error", f"Update failed: {e}"))
+
     threading.Thread(target=task).start()
 
 def compare_versions(local, remote):
