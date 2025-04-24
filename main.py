@@ -17,6 +17,7 @@ import functools, inspect
 import logging
 import ctypes
 from ctypes import wintypes
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -28,8 +29,13 @@ from src.window_manager import task_window_instance, task_window_opening
 from src.window_manager import task_reminder_windows
 import window_manager as window_manager
 from utils.logger import log_call, logger
+from utils.version import __version__
 
 due_queue = Queue()
+
+if "--version" in sys.argv:
+    print(__version__)
+    sys.exit(0)
 
 kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 user32   = ctypes.WinDLL("user32",   use_last_error=True)

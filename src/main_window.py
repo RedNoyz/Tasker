@@ -11,12 +11,14 @@ import time
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
 import sys
+import subprocess
 
 from src.task_window import TasksWindow
 from src.task_list_window import TasksListWindow
 from src.window_manager import task_window_instance, task_window_opening
 import src.window_manager as window_manager
 from utils.logger import log_call, logger
+from utils.version import __version__ as app_version
 
 task_list_window_instance = None
 
@@ -63,7 +65,10 @@ class MainWindow(tk.Tk):
         self.show_task_list_btn = ttk.Button(self, text="Show Task List", command=self.show_task_list_window)
         self.show_task_list_btn.grid(row=2, column=1, pady=10, padx=10)
 
-        # tk.Label(self, text="Made by RedNoyz", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
+        self.check_for_update_btn = tk.Button(self, text="Check For Update", command=self.run_updater, bg="darkgreen")
+        self.check_for_update_btn.grid(row=3, column=1, pady=10, padx=10)
+
+        tk.Label(self, text=f"Version v{app_version}", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
 
 
     def hide_main_window(self):
@@ -131,3 +136,9 @@ class MainWindow(tk.Tk):
             pass
 
         self.destroy()
+
+    def run_updater(self):
+        try:
+            subprocess.Popen(["updater.exe"], shell=True)
+        except Exception as e:
+            print(f"Failed to run updater: {e}")
