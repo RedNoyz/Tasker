@@ -22,3 +22,9 @@ Closing the reminder window will automatically snooze the reminder with 1h.
 **Task List Window**
 Now all the tasks can be shown. The default list is with open tasks.
 ![image](https://github.com/user-attachments/assets/4b09ef49-4bac-4b4d-ae25-e878123b1db4)
+
+
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
