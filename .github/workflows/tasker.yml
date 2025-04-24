@@ -18,7 +18,7 @@ jobs:
       - name: 🐍 Set up Python environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: 📦 Install dependencies
         run: |
@@ -29,7 +29,7 @@ jobs:
       - name: 🔍 Extract version from version.py
         id: get_version
         run: |
-          echo "version=$(python -c 'exec(open("version.py").read()); print(__version__)')" >> $GITHUB_ENV
+          echo "version=$(python -c 'exec(open("utils/version.py\).read()); print(__version__)')" >> $GITHUB_ENV
 
       - name: 🔨 Build executable with PyInstaller
         run: |
