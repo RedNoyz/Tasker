@@ -28,10 +28,13 @@ jobs:
 
       - name: 🔍 Extract version from utils/version.py
         id: get_version
+        shell: python
         run: |
-          $version = python -c "import pathlib; exec(open(pathlib.Path('utils') / 'version.py').read()); print(__version__)"
-          echo "version=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "Extracted version: $version"
+          import pathlib
+          version_file = pathlib.Path("utils/version.py")
+          scope = {}
+          exec(version_file.read_text(), scope)
+          print(f"::set-env name=version::{scope['__version__']}")
 
       - name: 🔎 Verify version matches GitHub Release tag
         run: |
@@ -44,26 +47,37 @@ jobs:
             exit 1
           }
 
-      - name: 🔨 Build executable with PyInstaller
-        run: |
-          pyinstaller Tasker.spec
+      - name: 🔨 Build Tasker.exe
+        run: pyinstaller Tasker.spec
 
-      - name: 📁 Rename EXE to Tasker.exe (if needed)
+      - name: 🔨 Build updater.exe
+        run: pyinstaller --onefile updater.py
+
+      - name: 📁 Rename Tasker.exe (if needed)
         run: |
           if (!(Test-Path -Path "dist/Tasker.exe")) {
-            $exe = Get-ChildItem -Path dist -Filter *.exe | Select-Object -First 1
+            $exe = Get-ChildItem -Path dist -Filter *.exe | Where-Object { $_.Name -ne "updater.exe" } | Select-Object -First 1
             if ($exe) {
               Rename-Item -Path $exe.FullName -NewName "Tasker.exe"
             }
           }
 
-      - name: 🚀 Upload executable to GitHub Release
+      - name: 📦 Zip Tasker.exe and updater.exe
+        run: |
+          mkdir bundle
+          Copy-Item "dist/Tasker.exe" -Destination bundle/
+          Copy-Item "dist/updater.exe" -Destination bundle/
+          Compress-Archive -Path bundle/* -DestinationPath dist/update_bundle.zip
+
+      - name: 🚀 Upload Tasker.exe to GitHub Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.event.release.tag_name }}
-          files: dist/Tasker.exe
+          files: |
+            dist/Tasker.exe
+            dist/update_bundle.zip
           name: Tasker-${{ env.version }}
           draft: false
           prerelease: ${{ github.event.release.prerelease }}
