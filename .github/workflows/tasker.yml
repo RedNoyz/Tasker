@@ -67,7 +67,7 @@ jobs:
           mkdir bundle
           Copy-Item "dist/Tasker.exe" -Destination bundle/
           Copy-Item "dist/updater.exe" -Destination bundle/
-          Compress-Archive -Path bundle/* -DestinationPath dist/update_bundle.zip
+          Compress-Archive -Path bundle/* -DestinationPath dist/tasker.zip
 
       - name: 🚀 Upload Tasker.exe to GitHub Release
         uses: softprops/action-gh-release@v1
