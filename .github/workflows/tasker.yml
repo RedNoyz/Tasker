@@ -26,11 +26,23 @@ jobs:
           pip install --no-use-pep517 -r requirements.txt
           pip install pyinstaller
 
-      - name: 🔍 Extract version from version.py
+      - name: 🔍 Extract version from utils/version.py
         id: get_version
         run: |
           $version = python -c "import pathlib; exec(open(pathlib.Path('utils') / 'version.py').read()); print(__version__)"
-          echo "version=$version" >> $env:GITHUB_ENV
+          echo "version=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "Extracted version: $version"
+
+      - name: 🔎 Verify version matches GitHub Release tag
+        run: |
+          $expectedTag = "v${{ env.version }}"
+          $actualTag = "${{ github.event.release.tag_name }}"
+          echo "Expected tag: $expectedTag"
+          echo "Actual tag:   $actualTag"
+          if ($expectedTag -ne $actualTag) {
+            Write-Error "Version mismatch: version.py is $expectedTag but GitHub release tag is $actualTag"
+            exit 1
+          }
 
       - name: 🔨 Build executable with PyInstaller
         run: |
@@ -38,9 +50,12 @@ jobs:
 
       - name: 📁 Rename EXE to Tasker.exe (if needed)
         run: |
-          if not exist dist\Tasker.exe (
-            ren dist\*.exe Tasker.exe
-          )
+          if (!(Test-Path -Path "dist/Tasker.exe")) {
+            $exe = Get-ChildItem -Path dist -Filter *.exe | Select-Object -First 1
+            if ($exe) {
+              Rename-Item -Path $exe.FullName -NewName "Tasker.exe"
+            }
+          }
 
       - name: 🚀 Upload executable to GitHub Release
         uses: softprops/action-gh-release@v1
