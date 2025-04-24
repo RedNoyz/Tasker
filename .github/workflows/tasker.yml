@@ -29,7 +29,12 @@ jobs:
       - name: 🔍 Extract version from version.py
         id: get_version
         run: |
-          echo "version=$(python -c 'exec(open("utils/version.py\).read()); print(__version__)')" >> $GITHUB_ENV
+          VERSION=$(python -c "
+            import pathlib
+            exec(open(pathlib.Path('utils') / 'version.py').read())
+            print(__version__)
+            ")
+            echo "version=$VERSION" >> $GITHUB_ENV
 
       - name: 🔨 Build executable with PyInstaller
         run: |
