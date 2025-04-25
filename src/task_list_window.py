@@ -78,13 +78,13 @@ class TasksListWindow(tk.Toplevel):
         self.mark_done_btn = tk.Button(self.button_frame, text="❌ Delete Task", command=self.on_delete, bg="darkred")
         self.mark_done_btn.pack(pady=10)
 
-        self.refresh_list_open = tk.Button(self.button_frame, text="🔃 Show Open Tasks", command=self.refresh_tree)
+        self.refresh_list_open = ttk.Button(self.button_frame, text="🔃 Show Open Tasks", command=self.refresh_tree)
         self.refresh_list_open.pack(pady=10)
 
-        self.refresh_list_closed= tk.Button(self.button_frame, text="🔃 Show Complete Tasks", command=self.refresh_closed_tasks)
+        self.refresh_list_closed= ttk.Button(self.button_frame, text="🔃 Show Complete Tasks", command=self.refresh_closed_tasks)
         self.refresh_list_closed.pack(pady=10)
 
-        self.refresh_list_all = tk.Button(self.button_frame, text="🔃 Show All Tasks", command=self.refresh_all_tasks)
+        self.refresh_list_all = ttk.Button(self.button_frame, text="🔃 Show All Tasks", command=self.refresh_all_tasks)
         self.refresh_list_all.pack(pady=10)
 
         self.bind("<Control-a>", self.select_all)
