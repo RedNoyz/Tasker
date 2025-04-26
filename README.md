@@ -11,7 +11,7 @@ Download the zip. Extract. Run. Enjoy.
 
 **Main Window**
 
-The Task window can be spawned with "ctrl+alt+space" key combo.
+The Task window can be spawned with "ctrl+shift+space" key combo.
 
 ![main_window](https://github.com/user-attachments/assets/164183fc-e20b-40ab-b849-b1aa4c2f5981)
 
