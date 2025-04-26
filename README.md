@@ -22,7 +22,8 @@ The Task window can be spawned with "ctrl+shift+space" key combo.
 
 **Reminder Window**
 Closing the reminder window will automatically snooze the reminder with 1h.
-![reminder_window](https://github.com/user-attachments/assets/b01deafa-316f-4ad5-a509-f4320b533e2a)
+![reminder_window](https://github.com/user-attachments/assets/0f3a7991-7f7e-4982-a107-9f43d4b8a771)
+
 
 **Task List Window**
 Now all the tasks can be shown. The default list is with open tasks.
