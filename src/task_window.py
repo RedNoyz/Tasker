@@ -128,19 +128,19 @@ class TasksWindow(tk.Toplevel):
         full_datetime = f"{selected_date} {selected_time}"
         return task, full_datetime
     
-    def validate_time_input(self, P, max_val):
-        if P == "" or (P.isdigit() and 0 <= int(P) <= max_val and len(P) <= 2):
+    def validate_time_input(self, time_input, max_val):
+        if time_input == "" or (time_input.isdigit() and 0 <= int(time_input) <= max_val and len(time_input) <= 2):
             return True
         return False
 
     def format_time_input(self, value):
         return value.zfill(2)
 
-    def on_validate_hour_input(self, P):
-        return self.validate_time_input(P, 23)
+    def on_validate_hour_input(self, hour_input):
+        return self.validate_time_input(hour_input, 23)
 
-    def on_validate_minute_input(self, P):
-        return self.validate_time_input(P, 59)
+    def on_validate_minute_input(self, minute_input):
+        return self.validate_time_input(minute_input, 59)
 
     def format_hour_input(self, event=None):
         self.hour_var.set(self.format_time_input(self.hour_var.get()))
@@ -155,7 +155,6 @@ class TasksWindow(tk.Toplevel):
         print(task_description)
         print(due_date)
 
-        # self.entry.delete(0, tk.END)
         self.save_task_to_db(task_description, due_date)
 
     @log_call
@@ -173,11 +172,11 @@ class TasksWindow(tk.Toplevel):
 
     @log_call
     def save_task_to_db(self, name, due_date):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
-        c.execute("INSERT INTO tasks (name, due_date) VALUES (?, ?)", (name, due_date))
-        conn.commit()
-        conn.close()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
+        connection_cursor.execute("INSERT INTO tasks (name, due_date) VALUES (?, ?)", (name, due_date))
+        sql_connection.commit()
+        sql_connection.close()
         print("task logged")
 
         messagebox.showinfo("New Task", f"Task added due: {due_date}")

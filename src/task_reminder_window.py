@@ -157,19 +157,19 @@ class TasksReminderWindow(tk.Toplevel):
         return full_datetime
     
 
-    def validate_time_input(self, P, max_val):
-        if P == "" or (P.isdigit() and 0 <= int(P) <= max_val and len(P) <= 2):
+    def validate_time_input(self, time_input, max_val):
+        if time_input == "" or (time_input.isdigit() and 0 <= int(time_input) <= max_val and len(time_input) <= 2):
             return True
         return False
 
     def format_time_input(self, value):
         return value.zfill(2)
 
-    def on_validate_hour_input(self, P):
-        return self.validate_time_input(P, 23)
+    def on_validate_hour_input(self, time_input):
+        return self.validate_time_input(time_input, 23)
 
-    def on_validate_minute_input(self, P):
-        return self.validate_time_input(P, 59)
+    def on_validate_minute_input(self, time_input):
+        return self.validate_time_input(time_input, 59)
 
     def format_hour_input(self, event=None):
         self.hour_var.set(self.format_time_input(self.hour_var.get()))
@@ -179,19 +179,19 @@ class TasksReminderWindow(tk.Toplevel):
     
     @log_call
     def update_task_status(task_id, status):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
-        c.execute("UPDATE tasks SET status = ? WHERE id = ?", (status, task_id))
-        conn.commit()
-        conn.close()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
+        connection_cursor.execute("UPDATE tasks SET status = ? WHERE id = ?", (status, task_id))
+        sql_connection.commit()
+        sql_connection.close()
 
     @log_call
     def snooze_task_hour(self):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
-        c.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
-        row = c.fetchone()
+        connection_cursor.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
+        row = connection_cursor.fetchone()
         snooze_counter = (row[0] if row and row[0] is not None else 0) + 1
 
         now_date = datetime.now()
@@ -200,12 +200,12 @@ class TasksReminderWindow(tk.Toplevel):
 
         formatted_due_date = new_due_date.strftime("%Y-%m-%d %H:%M")
 
-        c.execute(
+        connection_cursor.execute(
             "UPDATE tasks SET due_date = ?, notified = 0, snooze_counter = ? WHERE id = ?",
             (formatted_due_date, snooze_counter, self.task_id),
         )
-        conn.commit()
-        conn.close()
+        sql_connection.commit()
+        sql_connection.close()
 
         messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
 
@@ -213,22 +213,22 @@ class TasksReminderWindow(tk.Toplevel):
 
     @log_call
     def snooze_task_new_date(self):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
-        c.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
-        row = c.fetchone()
+        connection_cursor.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
+        row = connection_cursor.fetchone()
         snooze_counter = (row[0] if row and row[0] is not None else 0) + 1
 
         formatted_due_date = self.get_task_and_time()
         
 
-        c.execute(
+        connection_cursor.execute(
             "UPDATE tasks SET due_date = ?, notified = 0, snooze_counter = ? WHERE id = ?",
             (formatted_due_date, snooze_counter, self.task_id),
         )
-        conn.commit()
-        conn.close()
+        sql_connection.commit()
+        sql_connection.close()
 
         messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
 
@@ -236,18 +236,18 @@ class TasksReminderWindow(tk.Toplevel):
 
     @log_call
     def complete_task(self):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
         completed_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        c.execute(
+        connection_cursor.execute(
             "UPDATE tasks SET status = 'complete', complete_date = ? WHERE id = ?",
             (completed_date, self.task_id)
         )
-        print("Rows affected:", c.rowcount)
-        conn.commit()
-        conn.close()
+        print("Rows affected:", connection_cursor.rowcount)
+        sql_connection.commit()
+        sql_connection.close()
 
         print(completed_date)
 

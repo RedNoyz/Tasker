@@ -47,10 +47,10 @@ user32   = ctypes.WinDLL("user32",   use_last_error=True)
 MUTEX_NAME = "TaskerSingletonMutex"
 hMutex = kernel32.CreateMutexW(None, wintypes.BOOL(False), MUTEX_NAME)
 
-err = ctypes.get_last_error()
-print(f"[singleton] CreateMutexW returned handle={hMutex}, err={err}")
+last_error = ctypes.get_last_error()
+print(f"[singleton] CreateMutexW returned handle={hMutex}, err={last_error}")
 
-if err == 183:
+if last_error == 183:
     print("[singleton] another instance detected, forwarding focus…")
     TITLE = "Tasker"
     hwnd = user32.FindWindowW(None, TITLE)
@@ -68,9 +68,9 @@ print("[singleton] no other instance, continuing startup")
 
 
 def init_db():
-    conn = sqlite3.connect("tasks.db")
-    c = conn.cursor()
-    c.execute(
+    sql_connection = sqlite3.connect("tasks.db")
+    connection_cursor = sql_connection.cursor()
+    connection_cursor.execute(
         """
             CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,7 +85,7 @@ def init_db():
     """ 
     )
 
-    c.execute(
+    connection_cursor.execute(
         """
             CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
@@ -93,8 +93,8 @@ def init_db():
         )
     """ 
     )
-    conn.commit()
-    conn.close()
+    sql_connection.commit()
+    sql_connection.close()
 
 def create_image():
     image = Image.new("RGB", (64, 64), "blue")
@@ -102,8 +102,14 @@ def create_image():
     dc.rectangle((16, 16, 48, 48), fill="white")
     return image
 
-def setup_tray(): 
-    menu = Menu(MenuItem("Open Main Window", show_main_window), MenuItem("Exit", quit_app))
+def setup_tray():
+    menu = Menu(
+        MenuItem("📂 Open Main Window", lambda icon, item: show_main_window()),
+        Menu.SEPARATOR,
+        MenuItem("📃 Show Task List", lambda icon, item: main_window.show_task_list_window()),
+        Menu.SEPARATOR,
+        MenuItem("❌ Exit", lambda icon, item: quit_app())
+    )
     icon = Icon("QuickTask", create_image(), "Quick Task", menu)
     icon.run()
 
@@ -140,10 +146,10 @@ def show_main_window():
 
 def check_for_due_tasks():
     while True:
-        now = datetime.now().strftime("%Y-%m-%d %H:%M")
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
-        c.execute(
+        current_time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
+        connection_cursor.execute(
             """
             SELECT id, name, due_date FROM tasks
             WHERE due_date IS NOT NULL
@@ -152,16 +158,16 @@ def check_for_due_tasks():
               AND due_date <= ?
             ORDER BY due_date ASC
             """,
-            (now,),
+            (current_time_now,),
         )
-        due_tasks = c.fetchall()
+        due_tasks = connection_cursor.fetchall()
 
         for task_id, name, due_date in due_tasks:
             due_queue.put((task_id, name, due_date))
-            c.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
+            connection_cursor.execute("UPDATE tasks SET notified = 1 WHERE id = ?", (task_id,))
 
-        conn.commit()
-        conn.close()
+        sql_connection.commit()
+        sql_connection.close()
         time.sleep(10)
 
 def process_due_queue():
@@ -176,8 +182,8 @@ def process_due_queue():
 
 def reset_notified_worker(interval_secs=30):
     while True:
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
         live_ids = []
         for inst in list(window_manager.task_reminder_windows):
@@ -193,16 +199,16 @@ def reset_notified_worker(interval_secs=30):
                 "WHERE notified = 1 AND status = 'open' "
                 f"AND id NOT IN ({placeholders})"
             )
-            c.execute(sql, live_ids)
+            connection_cursor.execute(sql, live_ids)
         else:
-            c.execute(
+            connection_cursor.execute(
                 "UPDATE tasks SET notified = 0 WHERE notified = 1 AND status = 'open'"
             )
 
-        updated = c.rowcount
+        updated = connection_cursor.rowcount
 
-        conn.commit()
-        conn.close()
+        sql_connection.commit()
+        sql_connection.close()
 
         if updated:
             print(f"[reset_notified_worker] reset {updated} tasks")

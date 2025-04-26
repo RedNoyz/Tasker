@@ -13,8 +13,8 @@ DOWNLOAD_URL = "https://github.com/RedNoyz/Tasker/releases/latest/download/Taske
 LOCAL_EXE = "Tasker.exe"
 
 def is_tasker_running():
-    for proc in psutil.process_iter(['name']):
-        if proc.info['name'] == "Tasker.exe":
+    for process in psutil.process_iter(['name']):
+        if process.info['name'] == "Tasker.exe":
             return True
     return False
 
@@ -53,14 +53,14 @@ def download_file(url, target_file, progress_callback):
         except Exception as e:
             messagebox.showwarning("Warning", f"Could not delete the old temp file {temp_target_file}: {e}")
 
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        total = int(r.headers.get('content-length', 0))
-        with open(temp_target_file, 'wb') as f:
+    with requests.get(url, stream=True) as open_request:
+        open_request.raise_for_status()
+        total = int(open_request.headers.get('content-length', 0))
+        with open(temp_target_file, 'wb') as file:
             downloaded = 0
-            for chunk in r.iter_content(chunk_size=8192):
+            for chunk in open_request.iter_content(chunk_size=8192):
                 if chunk:
-                    f.write(chunk)
+                    file.write(chunk)
                     downloaded += len(chunk)
                     percent = int((downloaded / total) * 100)
                     progress_callback(percent)

@@ -117,21 +117,21 @@ class MainWindow(tk.Tk):
 
     @log_call
     def notified_set_to_false(self):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
         for inst in list(window_manager.task_reminder_windows):
             if inst.winfo_exists():
                 task_id = inst.return_task_id()
-                c.execute(
+                connection_cursor.execute(
                     "UPDATE tasks SET notified = 0 WHERE id = ?",
                     (task_id,)
                 )
             else:
                 window_manager.task_reminder_windows.remove(inst)
 
-        conn.commit()
-        conn.close()
+        sql_connection.commit()
+        sql_connection.close()
 
         try:
             window_manager.task_reminder_windows.remove(self)

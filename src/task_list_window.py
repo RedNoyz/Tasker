@@ -92,13 +92,13 @@ class TasksListWindow(tk.Toplevel):
         self.refresh_tree()
     
     def get_task_list(self):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
-        c.execute("SELECT id, name, status, notified, due_date FROM tasks WHERE status = 'open' ORDER BY due_date ASC")
-        rows = c.fetchall()
+        connection_cursor.execute("SELECT id, name, status, notified, due_date FROM tasks WHERE status = 'open' ORDER BY due_date ASC")
+        rows = connection_cursor.fetchall()
 
-        conn.close()
+        sql_connection.close()
         tasks = [
             (task_id, name, status, 'Yes' if notified else 'No', due_date)
             for task_id, name, status, notified, due_date in rows]
@@ -129,19 +129,19 @@ class TasksListWindow(tk.Toplevel):
 
     @log_call
     def mark_task_as_done(self, task_id):
-        conn = sqlite3.connect('tasks.db')
-        cursor = conn.cursor()
-        cursor.execute('UPDATE tasks SET status = "complete" WHERE id = ?', (task_id,))
-        conn.commit()
-        conn.close()
+        sql_connection = sqlite3.connect('tasks.db')
+        connection_cursor = sql_connection.cursor()
+        connection_cursor.execute('UPDATE tasks SET status = "complete" WHERE id = ?', (task_id,))
+        sql_connection.commit()
+        sql_connection.close()
 
     @log_call
     def delete_task(self, task_id):
-        conn = sqlite3.connect('tasks.db')
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
-        conn.commit()
-        conn.close()
+        sql_connection = sqlite3.connect('tasks.db')
+        connection_cursor = sql_connection.cursor()
+        connection_cursor.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
+        sql_connection.commit()
+        sql_connection.close()
 
     @log_call
     def on_delete(self):
@@ -172,12 +172,12 @@ class TasksListWindow(tk.Toplevel):
 
     @log_call
     def get_all_tasks_list(self):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
-        c.execute("SELECT id, name, status, notified, due_date FROM tasks ORDER BY due_date ASC")
-        rows = c.fetchall()
-        conn.close()
+        connection_cursor.execute("SELECT id, name, status, notified, due_date FROM tasks ORDER BY due_date ASC")
+        rows = connection_cursor.fetchall()
+        sql_connection.close()
 
         tasks = [
             (task_id, name, status, 'Yes' if notified else 'No', due_date)
@@ -194,12 +194,12 @@ class TasksListWindow(tk.Toplevel):
 
     @log_call
     def get_closed_tasks_list(self):
-        conn = sqlite3.connect("tasks.db")
-        c = conn.cursor()
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
 
-        c.execute("SELECT id, name, status, notified, due_date FROM tasks WHERE status = 'complete' ORDER BY due_date ASC")
-        rows = c.fetchall()
-        conn.close()
+        connection_cursor.execute("SELECT id, name, status, notified, due_date FROM tasks WHERE status = 'complete' ORDER BY due_date ASC")
+        rows = connection_cursor.fetchall()
+        sql_connection.close()
 
         tasks = [
             (task_id, name, status, 'Yes' if notified else 'No', due_date)
@@ -219,12 +219,12 @@ class TasksListWindow(tk.Toplevel):
             self.tree.selection_add(item)
 
     @log_call
-    def sort_by(self, col, descending):
-        data = [(self.tree.set(item, col), item) for item in self.tree.get_children('')]
+    def sort_by(self, column, descending):
+        data = [(self.tree.set(item, column), item) for item in self.tree.get_children('')]
 
-        if col == "ID":
+        if column == "ID":
             keyfunc = lambda t: int(t[0])
-        elif col == "Due Date":
+        elif column == "Due Date":
             keyfunc = lambda t: datetime.strptime(t[0], "%Y-%m-%d %H:%M")
         else:
             keyfunc = lambda t: t[0].lower()
@@ -235,9 +235,9 @@ class TasksListWindow(tk.Toplevel):
             self.tree.move(item, '', index)
 
         self.tree.heading(
-            col,
-            text=col,
-            command=lambda: self.sort_by(col, not descending)
+            column,
+            text=column,
+            command=lambda: self.sort_by(column, not descending)
         )
 
     @log_call
