@@ -19,7 +19,7 @@ from utils.logger import log_call, logger
 class TasksReminderWindow(tk.Toplevel):
     sound_played = False
 
-    def __init__(self, task_id, task_name, task_due_date, *args, callback=None, **kwargs):
+    def __init__(self, task_id, task_name, task_due_date, *args, callback=None, pending_reminders=0, **kwargs):
         super().__init__(*args, **kwargs)
 
         if not TasksReminderWindow.sound_played:
@@ -27,6 +27,10 @@ class TasksReminderWindow(tk.Toplevel):
             TasksReminderWindow.sound_played = True
             
         window_manager.task_reminder_windows.append(self)
+
+        self.user_action_taken = False
+
+        self.pending_reminders = pending_reminders
 
         self.callback = callback
         self.title("Tasker - Reminder")
@@ -67,6 +71,11 @@ class TasksReminderWindow(tk.Toplevel):
         self.selectable_label.config(state=tk.DISABLED)
         self.selectable_label.grid(row=1, column=0, pady=10, padx=10, sticky="nsew", columnspan=5)
         tk.Label(self, text=f"Due: {task_due_date}", font=("Segoe UI", 10), foreground="red").grid(row=2, column=0, pady=5, sticky="s", padx=10)
+
+        if self.pending_reminders > 0:
+            foreground = "red" if self.pending_reminders > 5 else "gray"
+            reminder_text = f"{self.pending_reminders} reminder{'s' if self.pending_reminders > 1 else ''} waiting"
+            tk.Label(self, text=reminder_text, font=("Segoe UI", 10), foreground=foreground).grid(row=2, column=4, pady=5, sticky="s", padx=10)
 
         self.datetime_frame = tk.Frame(self)
         self.datetime_frame.grid(row=3, column=0, columnspan=5, pady=(10, 0))
@@ -170,7 +179,22 @@ class TasksReminderWindow(tk.Toplevel):
     
     @log_call
     def hide_reminder_window(self):
+        global is_reminder_open
+
+        print(f"[hide_reminder_window] Called for task id {self.task_id}")
+        logger.info(f"[hide_reminder_window] Called for task id {self.task_id}")
+
+        if self in window_manager.task_reminder_windows:
+            window_manager.task_reminder_windows.remove(self)
+
+        is_reminder_open = False
+
         self.destroy()
+
+        if self.callback:
+            print(f"[hide_reminder_window] Calling callback after hide.")
+            logger.info(f"[hide_reminder_window] Calling callback after hide.")
+            self.callback()
 
     @log_call
     def get_task_and_time(self):
@@ -232,6 +256,8 @@ class TasksReminderWindow(tk.Toplevel):
         sql_connection.commit()
         sql_connection.close()
 
+        self.user_action_taken = True
+
         messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
 
         self.hide_reminder_window()
@@ -258,6 +284,8 @@ class TasksReminderWindow(tk.Toplevel):
         sql_connection.commit()
         sql_connection.close()
 
+        self.user_action_taken = True
+
         messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
 
         self.hide_reminder_window()
@@ -283,6 +311,8 @@ class TasksReminderWindow(tk.Toplevel):
             )
         sql_connection.commit()
         sql_connection.close()
+
+        self.user_action_taken = True
 
         messagebox.showinfo(
                 "Snoozed",
@@ -319,6 +349,8 @@ class TasksReminderWindow(tk.Toplevel):
         sql_connection.commit()
         sql_connection.close()
 
+        self.user_action_taken = True
+
         messagebox.showinfo(
             "Snoozed",
             f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times",
@@ -347,6 +379,8 @@ class TasksReminderWindow(tk.Toplevel):
         sql_connection.commit()
         sql_connection.close()
 
+        self.user_action_taken = True
+
         messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
 
         self.hide_reminder_window()
@@ -362,11 +396,16 @@ class TasksReminderWindow(tk.Toplevel):
             "UPDATE tasks SET status = 'complete', complete_date = ? WHERE id = ?",
             (completed_date, self.task_id)
         )
+
         print("Rows affected:", connection_cursor.rowcount)
+        logger.info("Rows affected:", connection_cursor.rowcount)
+        
         sql_connection.commit()
         sql_connection.close()
 
         print(completed_date)
+
+        self.user_action_taken = True
 
         messagebox.showinfo("Completed", f"Task completed on: {completed_date}", parent=self)
 

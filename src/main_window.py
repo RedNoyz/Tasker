@@ -97,6 +97,7 @@ class MainWindow(tk.Tk):
 
         except Exception as e:
             print("Error showing task window:", e)
+            logger.warning("Error showing task window:", e)
             window_manager.task_window_instance = None
         finally:
             window_manager.task_window_opening = False
@@ -113,6 +114,7 @@ class MainWindow(tk.Tk):
                 task_list_window_instance.focus_force()
         except Exception as e:
             print("Error showing task list window:", e)
+            logger.warning("Error showing task list window:", e)
             task_list_window_instance = None
 
     @log_call
@@ -156,3 +158,4 @@ class MainWindow(tk.Tk):
                 subprocess.Popen(["updater.exe"], shell=True)
             except Exception as e:
                 print(f"Failed to run updater: {e}")
+                logger.warning(f"Failed to run updater: {e}")
