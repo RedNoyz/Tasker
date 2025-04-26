@@ -287,7 +287,7 @@ def hotkey_action():
 def hotkey_listener():
     global stop_listening
 
-    keyboard.add_hotkey('ctrl+alt+space', hotkey_action, suppress=True, trigger_on_release=True)
+    keyboard.add_hotkey('ctrl+shift+space', hotkey_action, suppress=True, trigger_on_release=True)
 
     while not stop_listening:
         keyboard.wait('shift')
