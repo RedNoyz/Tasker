@@ -102,6 +102,9 @@ if remote_version is None:
 elif compare_versions(local_version, remote_version):
     label.config(text=f"Update available: {remote_version}")
     tk.Button(root, text="Update Now", command=start_download).pack(pady=10)
+elif local_version is None:
+    label.config(text=f"Update available: {remote_version}")
+    tk.Button(root, text="Update Now", command=start_download).pack(pady=10)
 else:
     label.config(text="Tasker is up to date.")
     tk.Button(root, text="Close", command=root.destroy).pack(pady=10)
