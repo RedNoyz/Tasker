@@ -51,7 +51,7 @@ def download_file(url, target_file, progress_callback):
         try:
             os.remove(temp_target_file)
         except Exception as e:
-            messagebox.showwarning(f"Warning: Could not delete the old temp file {temp_target_file}: {e}")
+            messagebox.showwarning("Warning", f"Could not delete the old temp file {temp_target_file}: {e}")
 
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
