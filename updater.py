@@ -116,7 +116,7 @@ def full_exit():
 def exit_updater():
     label.config(text="Update Canceled! Closing Updater!")
     print("Exiting app...")
-    
+
     stop_event.set()
     for thread in threads:
         thread.join(timeout=2)
@@ -129,8 +129,6 @@ def exit_updater():
             messagebox.showwarning("Warning", f"Could not delete the old temp file {temp_file}: {e}")
     
     root.after(500, full_exit)
-
-
 
 root = tk.Tk()
 root.title("Tasker Updater")
