@@ -40,6 +40,7 @@ from utils.logger import log_call, logger
 
 due_queue = Queue()
 
+stop_listening = False
 
 kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 user32   = ctypes.WinDLL("user32",   use_last_error=True)
@@ -114,6 +115,7 @@ def setup_tray():
     icon.run()
 
 def quit_app(icon):
+    stop_hotkey_listener()
     icon.stop()
     main_window.destroy()
     sys.exit()
@@ -220,13 +222,29 @@ main_window = MainWindow()
 main_window.after(100, process_due_queue)
 
 def hotkey_listener():
-    keyboard.add_hotkey(
-        "ctrl+alt+space",
-        main_window.show_task_window,
-        suppress=True,
-        trigger_on_release=True
-    )
-    keyboard.wait()
+    global stop_listening
+
+    while not stop_listening:
+        event = keyboard.read_event()
+
+        if event.event_type == keyboard.KEY_DOWN:
+            if (
+                keyboard.is_pressed("ctrl") and
+                keyboard.is_pressed("alt") and
+                event.name == "space"
+            ):
+                keyboard.block_key('space')
+
+                main_window.show_task_window()
+
+                keyboard.wait("space up")
+                keyboard.unblock_key('space')
+
+def stop_hotkey_listener():
+    global stop_listening
+    stop_listening = True
+
+    keyboard.press_and_release('shift')
 
 init_db()
 
