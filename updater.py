@@ -12,6 +12,14 @@ GITHUB_API_RELEASES_URL = "https://api.github.com/repos/RedNoyz/Tasker/releases/
 DOWNLOAD_URL = "https://github.com/RedNoyz/Tasker/releases/latest/download/Tasker.exe"
 LOCAL_EXE = "Tasker.exe"
 
+stop_event = threading.Event()
+threads = []
+
+def get_asset_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
 def is_tasker_running():
     for process in psutil.process_iter(['name']):
         if process.info['name'] == "Tasker.exe":
@@ -90,12 +98,39 @@ def start_download():
         except Exception as e:
             root.after(0, lambda: messagebox.showerror("Error", f"Update failed: {e}"))
 
-    threading.Thread(target=task).start()
+    download_thread = threading.Thread(target=task)
+    download_thread.daemon = True
+    download_thread.start()
+    threads.append(download_thread)
 
 def compare_versions(local, remote):
     def version_tuple(v):
         return tuple(map(int, (v.split("."))))
     return version_tuple(local) < version_tuple(remote)
+
+def full_exit():
+    root.destroy()
+    root.quit()
+    sys.exit()
+
+def exit_updater():
+    label.config(text="Update Canceled! Closing Updater!")
+    print("Exiting app...")
+    
+    stop_event.set()
+    for thread in threads:
+        thread.join(timeout=2)
+    
+    temp_file = LOCAL_EXE + ".tml"
+    if os.path.exists(temp_file):
+        try:
+            os.remove(temp_file)
+        except Exception as e:
+            messagebox.showwarning("Warning", f"Could not delete the old temp file {temp_file}: {e}")
+    
+    root.after(500, full_exit)
+
+
 
 root = tk.Tk()
 root.title("Tasker Updater")
@@ -113,17 +148,19 @@ remote_version = get_remote_version()
 
 if remote_version is None:
     label.config(text="Failed to check for updates.")
-    tk.Button(root, text="Close", command=root.destroy).pack(pady=10)
+    ttk.Button(root, text="Close", command=root.destroy).pack(pady=10)
 elif compare_versions(local_version, remote_version):
     label.config(text=f"Update available: {remote_version}")
     tk.Button(root, text="Update Now", command=start_download).pack(pady=10)
 elif local_version is None:
     label.config(text=f"Update available: {remote_version}")
-    tk.Button(root, text="Update Now", command=start_download).pack(pady=10)
+    ttk.Button(root, text="Update Now", command=start_download).pack(pady=10)
 else:
     label.config(text="Tasker is up to date.")
-    tk.Button(root, text="Close", command=root.destroy).pack(pady=10)
+    ttk.Button(root, text="Close", command=root.destroy).pack(pady=10)
 
+root.protocol("WM_DELETE_WINDOW", exit_updater)
 
+root.iconbitmap(get_asset_path("Assets/updater.ico"))
 sv_ttk.set_theme("dark")
 root.mainloop()

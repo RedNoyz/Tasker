@@ -4,3 +4,4 @@ tasks.db
 /src/__pycache__
 *.log
 Tasker.exe
+Tasker.exe.tmp

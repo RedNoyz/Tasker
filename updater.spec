@@ -6,7 +6,7 @@ a = Analysis(
     ['updater.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('Assets', 'Assets'), ('src', 'src')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -36,4 +36,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='Assets/updater.ico',
 )
