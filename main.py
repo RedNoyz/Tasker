@@ -221,7 +221,7 @@ main_window.after(100, process_due_queue)
 
 def hotkey_listener():
     keyboard.add_hotkey(
-        "ctrl+shift+space",
+        "ctrl+alt+space",
         main_window.show_task_window,
         suppress=True,
         trigger_on_release=True

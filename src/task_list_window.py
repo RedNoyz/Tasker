@@ -131,7 +131,7 @@ class TasksListWindow(tk.Toplevel):
     def mark_task_as_done(self, task_id):
         sql_connection = sqlite3.connect('tasks.db')
         connection_cursor = sql_connection.cursor()
-        connection_cursor.execute('UPDATE tasks SET status = "complete" WHERE id = ?', (task_id,))
+        connection_cursor.execute('UPDATE tasks SET status = "complete", notified = 1 WHERE id = ?', (task_id,))
         sql_connection.commit()
         sql_connection.close()
 
