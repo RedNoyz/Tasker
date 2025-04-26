@@ -53,7 +53,7 @@ jobs:
         run: pyinstaller Tasker.spec
 
       - name: 🔨 Build updater.exe
-        run: pyinstaller --onefile updater.py
+        run: pyinstaller updater.spec
 
       - name: 📁 Rename Tasker.exe (if needed)
         run: |
@@ -78,8 +78,9 @@ jobs:
         with:
           tag_name: ${{ github.event.release.tag_name }}
           files: |
-            dist/Tasker.exe
             dist/Tasker.zip
+            dist/Tasker.exe
+            dist/updater.exe
           name: Tasker-${{ env.version }}
           draft: false
           prerelease: ${{ github.event.release.prerelease }}
