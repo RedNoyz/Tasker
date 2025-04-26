@@ -27,7 +27,7 @@ def launch_and_exit():
 
 def show_success_and_exit():
     messagebox.showinfo("Update Complete", "Tasker has been updated successfully.")
-    launch_and_exit()
+    root.after(0, launch_and_exit)
 
 def get_local_version():
     try:
@@ -44,11 +44,19 @@ def get_remote_version():
     except Exception:
         return None
 
-def download_file(url, dest, progress_callback):
+def download_file(url, target_file, progress_callback):
+    temp_target_file = target_file + ".tmp"
+
+    if os.path.exists(temp_target_file):
+        try:
+            os.remove(temp_target_file)
+        except Exception as e:
+            messagebox.showwarning(f"Warning: Could not delete the old temp file {temp_target_file}: {e}")
+
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
         total = int(r.headers.get('content-length', 0))
-        with open(dest, 'wb') as f:
+        with open(temp_target_file, 'wb') as f:
             downloaded = 0
             for chunk in r.iter_content(chunk_size=8192):
                 if chunk:
@@ -56,6 +64,13 @@ def download_file(url, dest, progress_callback):
                     downloaded += len(chunk)
                     percent = int((downloaded / total) * 100)
                     progress_callback(percent)
+    try:
+        if is_tasker_running():
+            root.after(0, lambda: messagebox.showwarning("Close Tasker", "Please close Tasker.exe before updating."))
+            return
+        os.replace(temp_target_file, target_file)
+    except Exception as e:
+        messagebox.showwarning(f"Could not replace the old version: {e}")
 
 def update_progress(value):
     progress["value"] = value

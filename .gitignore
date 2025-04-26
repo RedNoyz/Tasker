@@ -3,3 +3,4 @@ tasks.db
 /dist
 /src/__pycache__
 *.log
+Tasker.exe
