@@ -2,6 +2,7 @@ tasks.db
 /build
 /dist
 /src/__pycache__
+__pycache__
 *.log
 Tasker.exe
 Tasker.exe.tmp
