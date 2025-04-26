@@ -29,11 +29,11 @@ class TasksReminderWindow(tk.Toplevel):
         window_manager.task_reminder_windows.append(self)
 
         self.callback = callback
-        self.geometry("700x400")
         self.title("Tasker - Reminder")
         self.resizable(False, False)
         self.transient(None)
         self.attributes("-topmost", False)
+        self.deiconify()
         self.focus_force()
         self.protocol("WM_DELETE_WINDOW", self.snooze_task_hour)
 
@@ -48,6 +48,8 @@ class TasksReminderWindow(tk.Toplevel):
         self.grid_columnconfigure(0, weight=1, minsize=166)
         self.grid_columnconfigure(1, weight=1, minsize=166)
         self.grid_columnconfigure(2, weight=1, minsize=166)
+        self.grid_columnconfigure(3, weight=1, minsize=166)
+        self.grid_columnconfigure(4, weight=1, minsize=166)
 
         self.grid_rowconfigure(0, weight=0)  # Label row
         self.grid_rowconfigure(1, weight=0)  # Task Title row
@@ -58,23 +60,22 @@ class TasksReminderWindow(tk.Toplevel):
         self.grid_rowconfigure(6, weight=0)  # Time entry row
         self.grid_rowconfigure(7, weight=0)  # Buttons row
 
-        tk.Label(self, text="Task:", font=font).grid(row=0, column=1, pady=(10, 0), sticky="n", padx=10)
+        tk.Label(self, text="Task:", font=font).grid(row=0, column=2, pady=(10, 0), sticky="n", padx=10)
 
-        self.selectable_label = tk.Text(self, height=1, width=50, wrap=tk.WORD, font=("Segoe UI", 12, "bold"), bd=0)
+        self.selectable_label = tk.Text(self, height=1, width=100, wrap=tk.WORD, font=("Segoe UI", 12, "bold"), bd=0)
         self.selectable_label.insert(tk.END, f"{task_name}")
         self.selectable_label.config(state=tk.DISABLED)
-        self.selectable_label.grid(row=1, column=0, pady=10, padx=10, sticky="nsew", columnspan=3)
+        self.selectable_label.grid(row=1, column=0, pady=10, padx=10, sticky="nsew", columnspan=5)
         tk.Label(self, text=f"Due: {task_due_date}", font=("Segoe UI", 10), foreground="red").grid(row=2, column=0, pady=5, sticky="s", padx=10)
 
-        tk.Label(self, text="Select New Due Date:", font=font).grid(row=3, column=1, pady=5, sticky="s", padx=10)
-        self.date_entry = DateEntry(
-            self, width=12, background="darkblue", foreground="white", borderwidth=2, year=2025
-        )
-        self.date_entry.grid(row=4, column=1, pady=10, padx=10)
+        self.datetime_frame = tk.Frame(self)
+        self.datetime_frame.grid(row=3, column=0, columnspan=5, pady=(10, 0))
 
-        tk.Label(self, text="Select Time:", font=font).grid(row=5, column=1, pady=5, sticky="n", padx=10)
-        self.time_frame = tk.Frame(self)
-        self.time_frame.grid(row=6, column=1, pady=10, padx=10)
+        tk.Label(self.datetime_frame, text="Select New Due Date:", font=font).pack(pady=5)
+        self.date_entry = DateEntry(self.datetime_frame, width=12, background="darkblue", foreground="white", borderwidth=2, year=2025)
+        self.date_entry.pack(pady=5)
+
+        tk.Label(self.datetime_frame, text="Select Time:", font=font).pack(pady=5)
 
         now = datetime.now()
         current_hour = (now + timedelta(hours=1)).hour
@@ -86,52 +87,76 @@ class TasksReminderWindow(tk.Toplevel):
         self.vcmd_hour = (self.register(self.on_validate_hour_input), "%P")
         self.vcmd_minute = (self.register(self.on_validate_minute_input), "%P")
 
+        self.time_frame = tk.Frame(self.datetime_frame)
+        self.time_frame.pack(pady=5)
+
         self.hour_spin = ttk.Spinbox(
             self.time_frame,
             from_=0,
             to=23,
             wrap=True,
             textvariable=self.hour_var,
-            width=5,
+            width=2,
+            font=("Segoe UI", 12),
+            justify="center",
             format="%02.0f",
             validate="key",
             validatecommand=self.vcmd_hour,
             command=self.format_hour_input
         )
+        self.hour_spin.pack(side="left", padx=(0, 5))
+
+        tk.Label(self.time_frame, text=":", font=("Segoe UI", 12, "bold")).pack(side="left")
+
         self.minute_spin = ttk.Spinbox(
             self.time_frame,
             from_=0,
             to=59,
             wrap=True,
             textvariable=self.minute_var,
-            width=5,
+            width=2,
+            font=("Segoe UI", 12),
+            justify="center",
             format="%02.0f",
             validate="key",
             validatecommand=self.vcmd_minute,
             command=self.format_minute_input
         )
-
-        self.hour_spin.grid(row=0, column=1, padx=(0, 5))
-        self.minute_spin.grid(row=0, column=2)
+        self.minute_spin.pack(side="left", padx=(5, 0))
 
         self.hour_spin.bind("<FocusOut>", self.format_hour_input)
         self.minute_spin.bind("<FocusOut>", self.format_minute_input)
 
-        self.new_date_btn = ttk.Button(self, text="New Date", command=self.snooze_task_new_date)
-        self.new_date_btn.grid(row=7, column=0, pady=10, padx=10, sticky="ew")
+        self.snooze_options = ["Snooze 3h", "Tomorrow 9AM", "Next Monday 9AM"]
+        self.snooze_var = tk.StringVar()
 
-        self.submit_btn = ttk.Button(self, text="Snooze 1h", command=self.snooze_task_hour)
-        self.submit_btn.grid(row=7, column=1, pady=10, padx=10, sticky="ew")
+        self.snooze_dropdown = ttk.Combobox(
+            self,
+            textvariable=self.snooze_var,
+            values=self.snooze_options,
+            state="readonly",
+            font=("Segoe UI", 10)
+        )
+        self.snooze_dropdown.grid(row=7, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+        self.snooze_dropdown.set("Snooze...")
+
+        self.snooze_dropdown.bind("<<ComboboxSelected>>", self.handle_snooze_selection)
+
+        self.snooze_hour = ttk.Button(self, text="Snooze 1h", command=self.snooze_task_hour)
+        self.snooze_hour.grid(row=7, column=2, pady=10, padx=10, sticky="ew")
+
+        self.new_date_btn = ttk.Button(self, text="New Date", command=self.snooze_task_new_date)
+        self.new_date_btn.grid(row=7, column=3, pady=10, padx=10, sticky="ew")
         
         self.complete_btn = ttk.Button(self, text="Complete", command=self.complete_task)
-        self.complete_btn.grid(row=7, column=2, pady=10, padx=10, sticky="ew")
+        self.complete_btn.grid(row=7, column=4, pady=10, padx=10, sticky="ew")
 
     @log_call
     def center_window(self):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        window_width = 700
-        window_height = 400
+        window_width = 840
+        window_height = 380
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
@@ -212,6 +237,98 @@ class TasksReminderWindow(tk.Toplevel):
         self.hide_reminder_window()
 
     @log_call
+    def snooze_task_three_hour(self):
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
+
+        connection_cursor.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
+        row = connection_cursor.fetchone()
+        snooze_counter = (row[0] if row and row[0] is not None else 0) + 1
+
+        now_date = datetime.now()
+
+        new_due_date = now_date + timedelta(hours=3)
+
+        formatted_due_date = new_due_date.strftime("%Y-%m-%d %H:%M")
+
+        connection_cursor.execute(
+            "UPDATE tasks SET due_date = ?, notified = 0, snooze_counter = ? WHERE id = ?",
+            (formatted_due_date, snooze_counter, self.task_id),
+        )
+        sql_connection.commit()
+        sql_connection.close()
+
+        messagebox.showinfo("Snoozed", f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times", parent=self)
+
+        self.hide_reminder_window()
+
+    @log_call
+    def snooze_task_tomorrow_morning(self):
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
+
+        connection_cursor.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
+        row = connection_cursor.fetchone()
+        snooze_counter = (row[0] if row and row[0] is not None else 0) + 1
+
+        now = datetime.now()
+
+        tomorrow_morning = (now + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
+
+        formatted_due_date = tomorrow_morning.strftime("%Y-%m-%d %H:%M")
+
+        connection_cursor.execute(
+                "UPDATE tasks SET due_date = ?, notified = 0, snooze_counter = ? WHERE id = ?",
+                (formatted_due_date, snooze_counter, self.task_id),
+            )
+        sql_connection.commit()
+        sql_connection.close()
+
+        messagebox.showinfo(
+                "Snoozed",
+                f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times",
+                parent=self
+            )
+
+        self.hide_reminder_window()
+
+    @log_call
+    def snooze_task_next_monday_morning(self):
+        sql_connection = sqlite3.connect("tasks.db")
+        connection_cursor = sql_connection.cursor()
+
+        connection_cursor.execute("SELECT snooze_counter FROM tasks WHERE id = ?", (self.task_id,))
+        row = connection_cursor.fetchone()
+        snooze_counter = (row[0] if row and row[0] is not None else 0) + 1
+
+        now = datetime.now()
+
+        days_until_monday = (7 - now.weekday() + 0) % 7
+        if days_until_monday == 0:
+            days_until_monday = 7
+
+        next_monday = now + timedelta(days=days_until_monday)
+        next_monday_morning = next_monday.replace(hour=9, minute=0, second=0, microsecond=0)
+
+        formatted_due_date = next_monday_morning.strftime("%Y-%m-%d %H:%M")
+
+        connection_cursor.execute(
+            "UPDATE tasks SET due_date = ?, notified = 0, snooze_counter = ? WHERE id = ?",
+            (formatted_due_date, snooze_counter, self.task_id),
+        )
+        sql_connection.commit()
+        sql_connection.close()
+
+        messagebox.showinfo(
+            "Snoozed",
+            f"Task snoozed to: {formatted_due_date}\n\nSnoozed {snooze_counter} times",
+            parent=self
+        )
+
+        self.hide_reminder_window()
+
+
+    @log_call
     def snooze_task_new_date(self):
         sql_connection = sqlite3.connect("tasks.db")
         connection_cursor = sql_connection.cursor()
@@ -265,3 +382,16 @@ class TasksReminderWindow(tk.Toplevel):
 
     def return_task_id(self):
         return self.task_id
+    
+    def handle_snooze_selection(self, event):
+        choice = self.snooze_var.get()
+
+        if choice == "Snooze 3h":
+            self.snooze_task_three_hour()
+        elif choice == "Tomorrow 9AM":
+            self.snooze_task_tomorrow_morning()
+        elif choice == "Next Monday 9AM":
+            self.snooze_task_next_monday_morning()
+
+        if self.winfo_exists():
+            self.snooze_dropdown.set("Snooze...")
