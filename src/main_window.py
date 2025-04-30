@@ -32,7 +32,7 @@ class MainWindow(tk.Tk):
         super().__init__(*args, **kwargs)
 
         self.callback = callback
-        self.geometry("500x500")
+        self.geometry("500x300")
         self.resizable(False, False)
         self.title("Tasker")
         self.focus()
@@ -198,7 +198,7 @@ class MainWindow(tk.Tk):
         else:
             self.overrideredirect(False)
             self.attributes("-topmost", False)
-            self.geometry("500x500")
+            self.geometry("500x300")
             self.toggle_floating_btn.config(text="Float Mode")
 
             self.unbind("<ButtonPress-1>")
