@@ -23,6 +23,9 @@ import functools, inspect
 import logging
 import ctypes
 from ctypes import wintypes
+import subprocess
+from utils.version import __version__ as app_version
+from src.main_window import GITHUB_API_RELEASES_URL
 
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
@@ -179,7 +182,7 @@ def check_due_queue():
 
     if not is_reminder_open and not due_queue.empty():
         task_id, task_name, task_due_date = due_queue.get()
-        show_reminder_window(task_id, task_name, task_due_date)
+        main_window.after(0, show_reminder_window, task_id, task_name, task_due_date)
 
 @log_call
 def check_for_due_tasks():
@@ -276,9 +279,7 @@ def reset_notified_worker(interval_secs=30):
 
             time.sleep(interval_secs)
 
-
 main_window = MainWindow()
-
 
 def hotkey_action():
     if not stop_listening:
@@ -301,10 +302,28 @@ def stop_hotkey_listener():
 
 init_db()
 
-threading.Thread(target=check_for_due_tasks, daemon=True).start()
-threading.Thread(target=lambda: reset_notified_worker(30), daemon=True).start()
-threading.Thread(target=hotkey_listener, daemon=True).start()
-threading.Thread(target=setup_tray, daemon=True).start()
+def start_background_threads():
+    threading.Thread(target=check_for_due_tasks, daemon=True).start()
+    threading.Thread(target=lambda: reset_notified_worker(30), daemon=True).start()
+    threading.Thread(target=hotkey_listener, daemon=True).start()
+    threading.Thread(target=setup_tray, daemon=True).start()
+
+
 
 sv_ttk.set_theme("dark")
+
+remote_version = main_window.get_remote_version()
+
+if main_window.compare_versions(app_version, remote_version):
+    answer = messagebox.askyesno("Update Available", "Do you want to update Tasker?")
+    if answer:
+        try:
+            subprocess.Popen(["updater.exe"], shell=True)
+        except Exception as e:
+            print(f"Failed to run updater: {e}")
+            logger.warning(f"Failed to run updater: {e}")
+    else:
+        pass
+
+main_window.after(100, start_background_threads)
 main_window.mainloop()
