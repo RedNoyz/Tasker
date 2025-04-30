@@ -36,13 +36,11 @@ class TasksWindow(tk.Toplevel):
 
         font = ("Segoe UI", 10, "bold")
 
-        # Test Sounds
-        # sound_thread = threading.Thread(target=self.play_sound)
-        # sound_thread.start()
-
         self.center_window()
 
         self.grid_columnconfigure(0, weight=1)  # Centering the widgets horizontally
+        self.grid_columnconfigure(1, weight=1)  # Centering the widgets horizontally
+
         self.grid_rowconfigure(0, weight=0)  # Label row
         self.grid_rowconfigure(1, weight=0)  # Entry row
         self.grid_rowconfigure(2, weight=0)  # Date label row
@@ -52,19 +50,31 @@ class TasksWindow(tk.Toplevel):
         self.grid_rowconfigure(6, weight=0)  # Submit button row
         self.grid_rowconfigure(7, weight=0)  # Cancel button row
 
-        tk.Label(self, text="New Task:", font=font).grid(row=0, column=0, pady=(10, 0), sticky="n", padx=10)
-        self.entry = tk.Entry(self, width=50, font=("Segoe UI", 12))
+        #Row 0 Elements
+        tk.Label(self, text="New Task:", font=font).grid(row=0, column=0, pady=(10, 0), sticky="s", padx=10)
+        tk.Label(self, text="Select Date:", font=font).grid(row=0, column=1, pady=(10, 0), sticky="s", padx=10)
+
+        #Row 1 Elements
+        self.entry = tk.Entry(self, width=70, font=("Segoe UI", 12))
         self.entry.grid(row=1, column=0, pady=10, padx=10)
 
-        tk.Label(self, text="Select Date:", font=font).grid(row=2, column=0, pady=5, sticky="n", padx=10)
         self.date_entry = DateEntry(
             self, width=12, background="darkblue", foreground="white", borderwidth=2, year=2025
         )
-        self.date_entry.grid(row=3, column=0, pady=10, padx=10)
+        self.date_entry.grid(row=1, column=1, pady=10, padx=10, sticky="n")
 
-        tk.Label(self, text="Select Time:", font=font).grid(row=4, column=0, pady=5, sticky="n", padx=10)
+        #Row 2 Elements
+        self.submit_btn = ttk.Button(self, text="Log Task", command=self.print_task)
+        self.submit_btn.grid(row=2, column=0, pady=10, padx=10)
+        self.submit_btn.config(state="disabled")
+        tk.Label(self, text="Select Time:", font=font).grid(row=2, column=1, pady=5, sticky="s", padx=10)
+
+        #Row 3 Elements
+        dismiss_btn = ttk.Button(self, text="Cancel", command=self.hide_task_window)
+        dismiss_btn.grid(row=3, column=0, pady=10, padx=10)
+
         self.time_frame = tk.Frame(self)
-        self.time_frame.grid(row=5, column=0, pady=10, padx=10)
+        self.time_frame.grid(row=3, column=1, padx=10, sticky="n")
 
         now = datetime.now()
         current_hour = (now + timedelta(hours=1)).hour
@@ -107,16 +117,10 @@ class TasksWindow(tk.Toplevel):
         self.hour_spin.bind("<FocusOut>", self.format_hour_input)
         self.minute_spin.bind("<FocusOut>", self.format_minute_input)
 
-        self.submit_btn = ttk.Button(self, text="Log Task", command=self.print_task)
-        self.submit_btn.grid(row=6, column=0, pady=10, padx=10)
-        self.submit_btn.config(state="disabled")
         self.bind("<Return>", self.on_enter)
         self.entry.bind("<KeyRelease>", self.check_entry)
 
         self.bind("<Escape>", self.on_escape)
-
-        dismiss_btn = ttk.Button(self, text="Cancel", command=self.hide_task_window)
-        dismiss_btn.grid(row=7, column=0, pady=10, padx=10)
 
     @log_call
     def get_task_and_time(self):
@@ -161,8 +165,8 @@ class TasksWindow(tk.Toplevel):
     def center_window(self):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        window_width = 700
-        window_height = 400
+        window_width = 930
+        window_height = 200
         x = (screen_width // 2) - (window_width // 2)
         y = (screen_height // 2) - (window_height // 2)
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
