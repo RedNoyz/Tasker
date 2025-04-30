@@ -36,6 +36,8 @@ class MainWindow(tk.Tk):
         self.title("Tasker")
         self.focus()
 
+        self.is_floating = False
+
         self.protocol("WM_DELETE_WINDOW", self.notified_set_to_false)
 
         def get_asset_path(relative_path):
@@ -59,23 +61,39 @@ class MainWindow(tk.Tk):
         self.grid_rowconfigure(5, weight=0)
         self.grid_rowconfigure(6, weight=0)
 
+        self.toggle_floating_btn = ttk.Button(self, text="Widget Mode", command=self.toggle_floating)
+        self.toggle_floating_btn.grid(row=0, column=1, pady=10, padx=10)
+
         self.hide_main_window_btn = ttk.Button(self, text="Hide Main Window", command=self.hide_main_window)
-        self.hide_main_window_btn.grid(row=0, column=1, pady=10, padx=10)
+        self.hide_main_window_btn.grid(row=1, column=1, pady=10, padx=10)
 
         self.new_task_btn = ttk.Button(self, text="New Task", command=self.show_task_window)
-        self.new_task_btn.grid(row=1, column=1, pady=10, padx=10)
+        self.new_task_btn.grid(row=2, column=1, pady=10, padx=10)
 
         self.show_task_list_btn = ttk.Button(self, text="Show Task List", command=self.show_task_list_window)
-        self.show_task_list_btn.grid(row=2, column=1, pady=10, padx=10)
+        self.show_task_list_btn.grid(row=3, column=1, pady=10, padx=10)
 
         self.check_for_update_btn = tk.Button(self, text="Check For Update", command=self.run_updater, bg="darkgreen")
-        self.check_for_update_btn.grid(row=3, column=1, pady=10, padx=10)
+        self.check_for_update_btn.grid(row=4, column=1, pady=10, padx=10)
 
-        tk.Label(self, text=f"Version v{app_version}", font=("Segoe UI", 10)).grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
+        self.version_label = tk.Label(self, text=f"Version v{app_version}", font=("Segoe UI", 10))
+        self.version_label.grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
+
+        self.bind("<ButtonPress-1>", self.start_move)
+        self.bind("<B1-Motion>", self.do_move)
 
 
     def hide_main_window(self):
         self.withdraw()
+
+    def start_move(self, event):
+        self._drag_x = event.x
+        self._drag_y = event.y
+
+    def do_move(self, event):
+        x = self.winfo_pointerx() - self._drag_x
+        y = self.winfo_pointery() - self._drag_y
+        self.geometry(f"+{x}+{y}")
 
     @log_call
     def show_task_window(self):
@@ -159,3 +177,65 @@ class MainWindow(tk.Tk):
             except Exception as e:
                 print(f"Failed to run updater: {e}")
                 logger.warning(f"Failed to run updater: {e}")
+
+    def toggle_floating(self):
+        self.is_floating = not self.is_floating
+
+        if self.is_floating:
+            self.overrideredirect(True)
+            self.attributes("-topmost", True)
+            self.geometry("200x100+100+100")
+            self.toggle_floating_btn.config(text="🔙")
+            self.new_task_btn.config(text="🆕")
+            self.show_task_list_btn.config(text="📃")
+
+            self.close_app_button = ttk.Button(self, text="❌", command=self.close_main_app)
+            self.close_app_button.grid(row=1, column=1, padx=0, pady=10)
+
+            self.hide_main_elements()
+        else:
+            self.overrideredirect(False)
+            self.attributes("-topmost", False)
+            self.geometry("500x500")
+            self.toggle_floating_btn.config(text="Float Mode")
+            self.show_main_elements()
+
+    def hide_main_elements(self):
+        self.grid_columnconfigure(0, weight=1, minsize=66)
+        self.grid_columnconfigure(1, weight=1, minsize=66)
+        self.grid_columnconfigure(2, weight=1, minsize=66)
+
+        self.hide_main_window_btn.grid_remove()
+        self.check_for_update_btn.grid_remove()
+        self.version_label.grid_remove()
+
+        self.toggle_floating_btn.grid(row=0, column=0, padx=0, pady=10)
+        self.new_task_btn.grid(row=0, column=1, padx=0, pady=10)
+        self.show_task_list_btn.grid(row=0, column=2, padx=0, pady=10)
+
+    def show_main_elements(self):
+        self.grid_columnconfigure(0, weight=1, minsize=166)
+        self.grid_columnconfigure(1, weight=1, minsize=166)
+        self.grid_columnconfigure(2, weight=1, minsize=166)
+
+        self.toggle_floating_btn.grid(row=0, column=1, pady=10, padx=10)
+
+        self.hide_main_window_btn.grid(row=1, column=1, pady=10, padx=10)
+
+        self.new_task_btn.grid(row=2, column=1, pady=10, padx=10)
+
+        self.show_task_list_btn.grid(row=3, column=1, pady=10, padx=10)
+
+        self.check_for_update_btn.grid(row=4, column=1, pady=10, padx=10)
+
+        self.version_label.grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
+
+        self.toggle_floating_btn.config(text="Widget Mode")
+        self.new_task_btn.config(text="New Task")
+        self.show_task_list_btn.config(text="Show Task List")
+
+        self.close_app_button.grid_remove()
+
+    def close_main_app(self):
+        self.destroy()
+        sys.exit()
