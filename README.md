@@ -13,21 +13,27 @@ Download the zip. Extract. Run. Enjoy.
 
 The Task window can be spawned with "ctrl+shift+space" key combo.
 
-![main_window](https://github.com/user-attachments/assets/164183fc-e20b-40ab-b849-b1aa4c2f5981)
+![main_window](https://github.com/user-attachments/assets/ade3bd98-1e19-4c32-86f7-a5c44b8a9825)
+##
+**Main Window Widget Mode**
 
+![widget_mode](https://github.com/user-attachments/assets/b31cce14-db6e-4eaa-a8c9-f0d16f2f8cb6)
 
+##
 **New Task Window**
 The Task window can be spawned with "ctrl+shift+space" key combo.
-![new_task](https://github.com/user-attachments/assets/d0e35c38-4010-4b89-83ce-8c76cfc410aa)
+![new_task](https://github.com/user-attachments/assets/0159e154-cd43-4372-85d2-948a38ab2b5b)
 
+##
 **Reminder Window**
 Closing the reminder window will automatically snooze the reminder with 1h.
-![reminder_window](https://github.com/user-attachments/assets/0f3a7991-7f7e-4982-a107-9f43d4b8a771)
+![reminder_window](https://github.com/user-attachments/assets/6f15842f-03a4-4ef1-9a06-f5f0f45311e0)
 
-
+##
 **Task List Window**
 Now all the tasks can be shown. The default list is with open tasks.
-![image](https://github.com/user-attachments/assets/4b09ef49-4bac-4b4d-ae25-e878123b1db4)
+![task_list](https://github.com/user-attachments/assets/a11a5fa9-e364-4cc5-ae51-54a6706a30fa)
+
 
 
 ## License
