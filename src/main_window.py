@@ -13,6 +13,7 @@ from PIL import Image, ImageDraw
 import sys
 import subprocess
 import requests
+import sv_ttk
 
 from src.task_window import TasksWindow
 from src.task_list_window import TasksListWindow
@@ -35,6 +36,7 @@ class MainWindow(tk.Tk):
         self.resizable(False, False)
         self.title("Tasker")
         self.focus()
+        sv_ttk.set_theme("dark")
 
         self.is_floating = False
 
@@ -81,7 +83,6 @@ class MainWindow(tk.Tk):
 
         self.bind("<ButtonPress-1>", self.start_move)
         self.bind("<B1-Motion>", self.do_move)
-
 
     def hide_main_window(self):
         self.withdraw()
@@ -239,3 +240,8 @@ class MainWindow(tk.Tk):
     def close_main_app(self):
         self.destroy()
         sys.exit()
+
+    def compare_versions(self, local, remote):
+        def version_tuple(v):
+            return tuple(map(int, (v.split("."))))
+        return version_tuple(local) < version_tuple(remote)

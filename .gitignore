@@ -12,3 +12,4 @@ utils/__pycache__/logger.cpython-310.pyc
 utils/__pycache__/version.cpython-310.pyc
 utils/__pycache__/logger.cpython-310.pyc
 *.pyc
+updater.exe
