@@ -81,8 +81,6 @@ class MainWindow(tk.Tk):
         self.version_label = tk.Label(self, text=f"Version v{app_version}", font=("Segoe UI", 10))
         self.version_label.grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
 
-        self.bind("<ButtonPress-1>", self.start_move)
-        self.bind("<B1-Motion>", self.do_move)
 
     def hide_main_window(self):
         self.withdraw()
@@ -193,12 +191,19 @@ class MainWindow(tk.Tk):
             self.close_app_button = ttk.Button(self, text="❌", command=self.close_main_app)
             self.close_app_button.grid(row=1, column=1, padx=0, pady=10)
 
+            self.bind("<ButtonPress-1>", self.start_move)
+            self.bind("<B1-Motion>", self.do_move)
+
             self.hide_main_elements()
         else:
             self.overrideredirect(False)
             self.attributes("-topmost", False)
             self.geometry("500x500")
             self.toggle_floating_btn.config(text="Float Mode")
+
+            self.unbind("<ButtonPress-1>")
+            self.unbind("<B1-Motion>")
+            
             self.show_main_elements()
 
     def hide_main_elements(self):
