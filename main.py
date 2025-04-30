@@ -118,7 +118,7 @@ def setup_tray():
         Menu.SEPARATOR,
         MenuItem("📃 Show Task List", lambda icon, item: main_window.show_task_list_window()),
         Menu.SEPARATOR,
-        MenuItem("❌ Exit", lambda icon, item: quit_app())
+        MenuItem("❌ Exit", lambda icon, item: quit_app(icon))
     )
     icon = Icon("QuickTask", create_image(), "Quick Task", menu)
     icon.run()
