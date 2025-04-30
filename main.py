@@ -30,6 +30,11 @@ from src.main_window import GITHUB_API_RELEASES_URL
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+def get_asset_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
 from src.main_window import MainWindow
 from src.task_window import TasksWindow
 from src.task_reminder_window import TasksReminderWindow
@@ -106,13 +111,9 @@ def init_db():
     sql_connection.commit()
     sql_connection.close()
 
-def create_image():
-    image = Image.new("RGB", (64, 64), "blue")
-    dc = ImageDraw.Draw(image)
-    dc.rectangle((16, 16, 48, 48), fill="white")
-    return image
-
 def setup_tray():
+    icon_path = get_asset_path("Assets/favicon.ico")
+    icon_image = Image.open(icon_path)
     menu = Menu(
         MenuItem("📂 Open Main Window", lambda icon, item: show_main_window()),
         Menu.SEPARATOR,
@@ -120,7 +121,7 @@ def setup_tray():
         Menu.SEPARATOR,
         MenuItem("❌ Exit", lambda icon, item: quit_app(icon))
     )
-    icon = Icon("QuickTask", create_image(), "Quick Task", menu)
+    icon = Icon("QuickTask", icon_image, "Quick Task", menu)
     icon.run()
 
 def quit_app(icon):
