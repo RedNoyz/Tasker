@@ -36,6 +36,7 @@ Now all the tasks can be shown. The default list is with open tasks.
 
 ##
 **About**
+
 ![about_window](https://github.com/user-attachments/assets/c698235f-1812-4990-b54b-e69859cf72ca)
 
 ## License
