@@ -220,6 +220,7 @@ class MainWindow(tk.Tk):
         self.hide_main_window_btn.grid_remove()
         self.check_for_update_btn.grid_remove()
         self.version_label.grid_remove()
+        self.info_button.place_forget()
 
         self.toggle_floating_btn.grid(row=0, column=0, padx=0, pady=10)
         self.new_task_btn.grid(row=0, column=1, padx=0, pady=10)
@@ -245,6 +246,7 @@ class MainWindow(tk.Tk):
         self.toggle_floating_btn.config(text="Widget Mode")
         self.new_task_btn.config(text="New Task")
         self.show_task_list_btn.config(text="Show Task List")
+        self.info_button.place(x=5, y=5)
 
         self.close_app_button.grid_remove()
 
