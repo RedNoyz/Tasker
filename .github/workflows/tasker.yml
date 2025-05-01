@@ -1,4 +1,4 @@
-name: Build ${{ github.event.release.tag_name }}
+name: Build and Upload Release Asset
 
 permissions:
   contents: write
