@@ -74,7 +74,14 @@ def download_file(url, target_file, progress_callback):
                     progress_callback(percent)
     try:
         if is_tasker_running():
-            root.after(0, lambda: messagebox.showwarning("Close Tasker", "Please close Tasker.exe before updating."))
+            try:
+                subprocess.run(["taskkill", "/f", "/im", "Tasker.exe"], check=True)
+                print("Tasker.exe has been terminated.")
+                return True
+            except subprocess.CalledProcessError as e:
+                root.after(0, lambda: messagebox.showwarning("Close Tasker", "Please close Tasker.exe before updating."))
+                print("Tasker.exe could not be terminated (maybe not running).")
+                return False
             return
         os.replace(temp_target_file, target_file)
     except Exception as e:
@@ -88,8 +95,14 @@ def start_download():
     def task():
         try:
             if is_tasker_running():
-                root.after(0, lambda: messagebox.showwarning("Close Tasker", "Please close Tasker.exe before updating."))
-                return
+                try:
+                    subprocess.run(["taskkill", "/f", "/im", "Tasker.exe"], check=True)
+                    print("Tasker.exe has been terminated.")
+                    return True
+                except subprocess.CalledProcessError as e:
+                    root.after(0, lambda: messagebox.showwarning("Close Tasker", "Please close Tasker.exe before updating."))
+                    print("Tasker.exe could not be terminated (maybe not running).")
+                    return False
 
             download_file(DOWNLOAD_URL, LOCAL_EXE, update_progress)
 
