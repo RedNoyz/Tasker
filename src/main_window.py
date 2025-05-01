@@ -14,6 +14,7 @@ import sys
 import subprocess
 import requests
 import sv_ttk
+import webbrowser
 
 from src.task_window import TasksWindow
 from src.task_list_window import TasksListWindow
@@ -78,8 +79,13 @@ class MainWindow(tk.Tk):
         self.check_for_update_btn = tk.Button(self, text="Check For Update", command=self.run_updater, bg="darkgreen")
         self.check_for_update_btn.grid(row=4, column=1, pady=10, padx=10)
 
+        style = ttk.Style()
+        style.configure("Info.TButton", padding=1, font=("Segoe UI", 8))
+        self.info_button = ttk.Button(self, text="About", command=self.show_app_info, style="Info.TButton")
+        self.info_button.place(x=5, y=5)
+
         self.version_label = tk.Label(self, text=f"Version v{app_version}", font=("Segoe UI", 10))
-        self.version_label.grid(row=6, column=2, pady=(10, 0), sticky="s", padx=10)
+        self.version_label.grid(row=6, column=2, pady=(10, 0), sticky="se", padx=10)
 
 
     def hide_main_window(self):
@@ -250,3 +256,45 @@ class MainWindow(tk.Tk):
         def version_tuple(v):
             return tuple(map(int, (v.split("."))))
         return version_tuple(local) < version_tuple(remote)
+    
+    def show_app_info(self):
+        info_win = tk.Toplevel(self)
+        info_win.title("About Tasker")
+        info_win.geometry("400x250")
+        info_win.resizable(False, False)
+        info_win.transient(self)
+        info_win.grab_set()
+
+        win_width = 400
+        win_height = 250
+
+        tk.Label(info_win, text="Tasker", font=("Segoe UI", 16, "bold")).pack(pady=(10, 0))
+        tk.Label(info_win, text=f"Version: {app_version}").pack()
+
+        tk.Label(info_win, text="©2025 RedNoyz").pack()
+
+        tk.Label(info_win, text="Licensed under the MIT License").pack(pady=(5, 10))
+
+        link = tk.Label(info_win, text="GitHub Repository", fg="lightblue", cursor="hand2")
+        link.pack()
+        link.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/RedNoyz/Tasker/releases/latest"))
+
+        tk.Label(info_win, text="This app helps you manage and get reminders").pack(pady=10)
+
+        tk.Button(info_win, text="Close", command=info_win.destroy).pack(pady=5)
+
+        def keep_inside(event=None):
+            x = info_win.winfo_x()
+            y = info_win.winfo_y()
+
+            min_x = self.winfo_x()
+            max_x = min_x + self.winfo_width() - win_width
+            min_y = self.winfo_y()
+            max_y = min_y + self.winfo_height() - win_height
+
+            x = max(min_x, min(x, max_x))
+            y = max(min_y, min(y, max_y))
+
+            info_win.geometry(f"+{x}+{y}")
+
+        info_win.bind("<Configure>", keep_inside)
