@@ -77,7 +77,6 @@ def download_file(url, target_file, progress_callback):
             try:
                 subprocess.run(["taskkill", "/f", "/im", "Tasker.exe"], check=True)
                 print("Tasker.exe has been terminated.")
-                return True
             except subprocess.CalledProcessError as e:
                 root.after(0, lambda: messagebox.showwarning("Close Tasker", "Please close Tasker.exe before updating."))
                 print("Tasker.exe could not be terminated (maybe not running).")
@@ -98,7 +97,6 @@ def start_download():
                 try:
                     subprocess.run(["taskkill", "/f", "/im", "Tasker.exe"], check=True)
                     print("Tasker.exe has been terminated.")
-                    return True
                 except subprocess.CalledProcessError as e:
                     root.after(0, lambda: messagebox.showwarning("Close Tasker", "Please close Tasker.exe before updating."))
                     print("Tasker.exe could not be terminated (maybe not running).")
