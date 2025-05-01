@@ -13,7 +13,7 @@ Download the zip. Extract. Run. Enjoy.
 
 The Task window can be spawned with "ctrl+shift+space" key combo.
 
-![main_window](https://github.com/user-attachments/assets/ade3bd98-1e19-4c32-86f7-a5c44b8a9825)
+![main_window](https://github.com/user-attachments/assets/9f22b5ed-3b2a-4c9a-864a-0db5f7823e16)
 ##
 **Main Window Widget Mode**
 
@@ -34,7 +34,10 @@ Closing the reminder window will automatically snooze the reminder with 1h.
 Now all the tasks can be shown. The default list is with open tasks.
 ![task_list](https://github.com/user-attachments/assets/a11a5fa9-e364-4cc5-ae51-54a6706a30fa)
 
+##
+**About**
 
+![about_window](https://github.com/user-attachments/assets/c698235f-1812-4990-b54b-e69859cf72ca)
 
 ## License
  
