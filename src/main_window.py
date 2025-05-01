@@ -41,6 +41,8 @@ class MainWindow(tk.Tk):
 
         self.is_floating = False
 
+        self.current_year = time.localtime().tm_year
+
         self.protocol("WM_DELETE_WINDOW", self.notified_set_to_false)
 
         def get_asset_path(relative_path):
@@ -274,7 +276,7 @@ class MainWindow(tk.Tk):
             tk.Label(info_win, text="Tasker", font=("Segoe UI", 16, "bold")).pack(pady=(10, 0))
             tk.Label(info_win, text=f"Version: {app_version}").pack()
 
-            tk.Label(info_win, text="©2025 RedNoyz").pack()
+            tk.Label(info_win, text=f"©{self.current_year} RedNoyz").pack()
 
             tk.Label(info_win, text="Licensed under the MIT License").pack(pady=(5, 10))
 
