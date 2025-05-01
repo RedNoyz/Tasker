@@ -1,4 +1,4 @@
-# Tasker
+# Tasker ![GitHub all releases](https://img.shields.io/github/downloads/RedNoyz/Tasker/total)
 
 Go to:
 https://github.com/RedNoyz/Tasker/releases/latest
