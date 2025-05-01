@@ -183,7 +183,7 @@ class MainWindow(tk.Tk):
         if self.is_floating:
             self.overrideredirect(True)
             self.attributes("-topmost", True)
-            self.geometry("200x100+100+100")
+            self.geometry("200x100")
             self.toggle_floating_btn.config(text="🔙")
             self.new_task_btn.config(text="🆕")
             self.show_task_list_btn.config(text="📃")
