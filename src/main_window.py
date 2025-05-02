@@ -45,12 +45,7 @@ class MainWindow(tk.Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.notified_set_to_false)
 
-        def get_asset_path(relative_path):
-            if hasattr(sys, '_MEIPASS'):
-                return os.path.join(sys._MEIPASS, relative_path)
-            return os.path.join(os.path.abspath("."), relative_path)
-
-        self.iconbitmap(get_asset_path("Assets/favicon.ico"))
+        self.iconbitmap(self.get_asset_path("Assets/favicon.ico"))
 
         font = ("Segoe UI", 10, "bold")
 
@@ -270,6 +265,8 @@ class MainWindow(tk.Tk):
             info_win.transient(self)
             info_win.grab_set()
 
+            info_win.iconbitmap(self.get_asset_path("Assets/favicon.ico"))
+
             win_width = 400
             win_height = 250
 
@@ -303,3 +300,8 @@ class MainWindow(tk.Tk):
                 info_win.geometry(f"+{x}+{y}")
 
             info_win.bind("<Configure>", keep_inside)
+
+    def get_asset_path(self, relative_path):
+        if hasattr(sys, '_MEIPASS'):
+            return os.path.join(sys._MEIPASS, relative_path)
+        return os.path.join(os.path.abspath("."), relative_path)
